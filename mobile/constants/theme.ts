@@ -2,26 +2,28 @@
 // Premium startup aesthetic: dark-first, glassmorphism, vibrant accents
 
 export const Colors = {
-  // Brand palette
-  primary: '#FF6B35',       // Vibrant Vietnamese orange
-  primaryLight: '#FF8C5A',
-  primaryDark: '#E55A28',
-  secondary: '#00C9B1',     // Teal accent
-  secondaryLight: '#33D4C0',
-  secondaryDark: '#00A891',
-  accent: '#FFD700',        // Gold for premium elements
+  // Brand palette (Du Lịch Việt Style)
+  primary: '#E8302A',       // Đỏ cờ Du Lịch Việt
+  primaryLight: '#FF5A52',
+  primaryDark: '#C0251F',
+  secondary: '#FFB800',     // Vàng kim Du Lịch Việt
+  secondaryLight: '#FFD54F',
+  secondaryDark: '#E6A600',
+  accent: '#FFB800',        // Gold for premium elements
+  navy: '#0D1B2E',          // Deep navy
   
-  // Background (dark theme)
-  background: '#0A0E1A',
-  backgroundSecondary: '#111827',
-  backgroundTertiary: '#1A2235',
-  surface: '#1E2A3A',
-  surfaceElevated: '#243347',
-  glass: 'rgba(255, 255, 255, 0.08)',
-  glassBorder: 'rgba(255, 255, 255, 0.12)',
+  // Background (DulichViet Clean Bright Theme)
+  background: '#F4F6F9',
+  backgroundSecondary: '#FFFFFF',
+  backgroundTertiary: '#EEF2F6',
+  surface: '#FFFFFF',
+  surfaceElevated: '#FFFFFF',
+  glass: 'rgba(255, 255, 255, 0.95)',
+  glassBorder: 'rgba(226, 232, 240, 0.8)',
+  border: '#E2E8F0',
   
-  // Background (light theme)
-  backgroundLight: '#F8FAFC',
+  // Background (light theme aliases)
+  backgroundLight: '#F4F6F9',
   backgroundSecondaryLight: '#FFFFFF',
   backgroundTertiaryLight: '#EFF3F8',
   surfaceLight: '#FFFFFF',
@@ -30,13 +32,13 @@ export const Colors = {
   glassBorderLight: 'rgba(0, 0, 0, 0.1)',
   
   // Text
-  textPrimary: '#FFFFFF',
-  textSecondary: '#A0AEC0',
-  textTertiary: '#718096',
-  textMuted: '#4A5568',
-  textPrimaryLight: '#0A0E1A',
-  textSecondaryLight: '#4A5568',
-  textTertiaryLight: '#718096',
+  textPrimary: '#0D1B2E',
+  textSecondary: '#475569',
+  textTertiary: '#94A3B8',
+  textMuted: '#64748B',
+  textPrimaryLight: '#0D1B2E',
+  textSecondaryLight: '#475569',
+  textTertiaryLight: '#94A3B8',
   
   // Semantic
   success: '#48BB78',
