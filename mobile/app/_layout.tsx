@@ -5,8 +5,28 @@ import { PaperProvider, MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
 import { StatusBar } from 'expo-status-bar';
 import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold } from '@expo-google-fonts/inter';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
+import { LogBox } from 'react-native';
 import { useTheme } from '../store/appStore';
+
+LogBox.ignoreLogs([
+  '"shadow*" style props are deprecated',
+  '"textShadow*" style props are deprecated',
+  'props.pointerEvents is deprecated',
+]);
+
+if (typeof window !== 'undefined') {
+  const originalWarn = console.warn;
+  console.warn = (...args: any[]) => {
+    const msg = args[0] ? String(args[0]) : '';
+    if (
+      msg.includes('style props are deprecated') ||
+      msg.includes('pointerEvents is deprecated')
+    ) {
+      return;
+    }
+    originalWarn(...args);
+  };
+}
 
 SplashScreen.preventAutoHideAsync();
 
@@ -24,10 +44,10 @@ const paperDarkTheme = {
   ...MD3DarkTheme,
   colors: {
     ...MD3DarkTheme.colors,
-    primary: '#FF6B35',
-    secondary: '#00C9B1',
-    background: '#0A0E1A',
-    surface: '#1E2A3A',
+    primary: '#E8302A',
+    secondary: '#FFB800',
+    background: '#0D1B2E',
+    surface: '#1A293D',
   },
 };
 
@@ -35,8 +55,8 @@ const paperLightTheme = {
   ...MD3LightTheme,
   colors: {
     ...MD3LightTheme.colors,
-    primary: '#FF6B35',
-    secondary: '#00C9B1',
+    primary: '#E8302A',
+    secondary: '#FFB800',
   },
 };
 
