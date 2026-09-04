@@ -1,0 +1,90 @@
+{
+  "expo": {
+    "name": "LocalGo Vietnam",
+    "slug": "localgo-vietnam",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/icon.png",
+    "scheme": "localgo",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0A0E1A"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.localgo.vietnam",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSLocationWhenInUseUsageDescription": "LocalGo uses your location to show nearby attractions and verify check-ins.",
+        "NSLocationAlwaysUsageDescription": "LocalGo uses your location for navigation.",
+        "NSCameraUsageDescription": "LocalGo uses your camera for photos and QR check-in.",
+        "NSPhotoLibraryUsageDescription": "LocalGo accesses your photos to upload to posts and reviews.",
+        "NSMicrophoneUsageDescription": "LocalGo uses the microphone for video recording.",
+        "UIBackgroundModes": ["remote-notification"]
+      },
+      "itsAppUsesNonExemptEncryption": false,
+      "googleServicesFile": "./GoogleService-Info.plist"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/adaptive-icon.png",
+        "backgroundColor": "#0A0E1A"
+      },
+      "package": "com.localgo.vietnam",
+      "versionCode": 1,
+      "permissions": [
+        "ACCESS_FINE_LOCATION",
+        "ACCESS_COARSE_LOCATION",
+        "CAMERA",
+        "READ_EXTERNAL_STORAGE",
+        "WRITE_EXTERNAL_STORAGE",
+        "RECORD_AUDIO",
+        "VIBRATE",
+        "RECEIVE_BOOT_COMPLETED",
+        "POST_NOTIFICATIONS"
+      ],
+      "googleServicesFile": "./google-services.json"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-font",
+      [
+        "expo-location",
+        {
+          "locationAlwaysAndWhenInUsePermission": "Allow LocalGo to use your location.",
+          "isAndroidBackgroundLocationEnabled": false
+        }
+      ],
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/notification-icon.png",
+          "color": "#FF6B35"
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow LocalGo to access your camera."
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "eas": {
+        "projectId": "your-eas-project-id"
+      },
+      "apiBaseUrl": "https://localgo-api.onrender.com/api/v1",
+      "googleMapsApiKey": "YOUR_GOOGLE_MAPS_API_KEY"
+    }
+  }
+}

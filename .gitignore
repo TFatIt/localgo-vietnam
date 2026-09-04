@@ -1,0 +1,37 @@
+# Dependencies
+node_modules/
+*/node_modules/
+trash_node_modules/
+C:/localgo-dev/
+
+# Expo & Mobile
+.expo/
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+*.orig.*
+
+# Environment & Credentials (DO NOT COMMIT SECRETS)
+.env
+.env.local
+*.env
+GoogleService-Info.plist
+google-services.json
+
+# Build outputs
+dist/
+build/
+web-build/
+
+# Logs & temp
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# OS & Editors
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/

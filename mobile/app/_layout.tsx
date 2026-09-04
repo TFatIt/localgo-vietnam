@@ -1,0 +1,79 @@
+import { Stack } from 'expo-router';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { PaperProvider, MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
+import { StatusBar } from 'expo-status-bar';
+import { useFonts, Inter_400Regular, Inter_500Medium, Inter_600SemiBold, Inter_700Bold, Inter_800ExtraBold } from '@expo-google-fonts/inter';
+import * as SplashScreen from 'expo-splash-screen';
+import { useEffect } from 'react';
+import { useTheme } from '../store/appStore';
+
+SplashScreen.preventAutoHideAsync();
+
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: 2,
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 30 * 60 * 1000,   // 30 minutes
+    },
+  },
+});
+
+const paperDarkTheme = {
+  ...MD3DarkTheme,
+  colors: {
+    ...MD3DarkTheme.colors,
+    primary: '#FF6B35',
+    secondary: '#00C9B1',
+    background: '#0A0E1A',
+    surface: '#1E2A3A',
+  },
+};
+
+const paperLightTheme = {
+  ...MD3LightTheme,
+  colors: {
+    ...MD3LightTheme.colors,
+    primary: '#FF6B35',
+    secondary: '#00C9B1',
+  },
+};
+
+export default function RootLayout() {
+  const { isDark } = useTheme();
+
+  const [fontsLoaded] = useFonts({
+    Inter_400Regular,
+    Inter_500Medium,
+    Inter_600SemiBold,
+    Inter_700Bold,
+    Inter_800ExtraBold,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) SplashScreen.hideAsync();
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) return null;
+
+  return (
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <PaperProvider theme={isDark ? paperDarkTheme : paperLightTheme}>
+          <StatusBar style={isDark ? 'light' : 'dark'} />
+          <Stack screenOptions={{ headerShown: false }}>
+            <Stack.Screen name="(auth)" />
+            <Stack.Screen name="(tabs)" />
+            <Stack.Screen name="place/[id]" options={{ presentation: 'card' }} />
+            <Stack.Screen name="ai-planner" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="ai-chat" options={{ presentation: 'modal' }} />
+            <Stack.Screen name="journal/[id]" />
+            <Stack.Screen name="settings" />
+            <Stack.Screen name="checkin/[id]" options={{ presentation: 'modal' }} />
+          </Stack>
+        </PaperProvider>
+      </QueryClientProvider>
+    </GestureHandlerRootView>
+  );
+}
