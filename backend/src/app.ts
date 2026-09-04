@@ -4,11 +4,13 @@ import cors from 'cors';
 import compression from 'compression';
 import morgan from 'morgan';
 import mongoSanitize from 'express-mongo-sanitize';
+import path from 'path';
 
 import { config } from './config';
 import { globalRateLimiter } from './middlewares/rateLimiter';
 import { errorHandler, notFound } from './middlewares/errorHandler';
 import { logger } from './utils/logger';
+import { settingsService } from './services/settings.service';
 
 // Routes
 import authRoutes from './routes/auth.routes';
@@ -62,16 +64,26 @@ if (config.env !== 'test') {
   );
 }
 
+// Static files & Admin portal (DulichViet styled CMS)
+const publicDir = path.resolve(__dirname, '../public');
+app.use(express.static(publicDir));
+app.use('/admin', express.static(path.join(publicDir, 'admin')));
+
 // Root & Health check
-app.get('/', (_req, res) => {
+app.get('/', (req, res) => {
+  if (req.accepts('html')) {
+    return res.redirect('/admin');
+  }
   res.json({
     status: 'ok',
     name: 'LocalGo Vietnam API',
     version: '1.0.0',
     env: config.env,
+    adminPortal: '/admin',
     endpoints: {
       health: '/health',
       api: '/api/v1',
+      admin: '/admin',
     },
   });
 });
@@ -85,6 +97,11 @@ app.get('/health', (_req, res) => {
   });
 });
 
+// Admin SPA routing
+app.get('/admin/*', (_req, res) => {
+  res.sendFile(path.join(publicDir, 'admin/index.html'));
+});
+
 // API Routes
 const API = '/api/v1';
 app.get(API, (_req, res) => {
@@ -92,8 +109,20 @@ app.get(API, (_req, res) => {
     status: 'ok',
     message: 'LocalGo Vietnam API v1 is online',
     version: '1.0.0',
+    admin: '/admin',
   });
 });
+
+// Public Site Settings (for Frontend/Mobile to sync with CMS)
+app.get(`${API}/settings`, async (_req, res) => {
+  try {
+    const settings = await settingsService.getSettings();
+    res.json({ success: true, data: { settings } });
+  } catch (err: any) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
+
 app.use(`${API}/auth`, authRoutes);
 app.use(`${API}/places`, placeRoutes);
 app.use(`${API}/places/:placeId/reviews`, reviewRoutes);

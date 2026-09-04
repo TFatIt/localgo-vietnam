@@ -12,15 +12,15 @@
   --text-primary: #FFFFFF;
   --text-secondary: #A0AEC0;
   --text-tertiary: #718096;
-  --primary: #FF6B35;
-  --primary-light: #FF8C5A;
-  --primary-dark: #E55A28;
-  --secondary: #00C9B1;
+  --primary: #E8302A;
+  --primary-light: #FF5A52;
+  --primary-dark: #C0251F;
+  --secondary: #FFB800;
   --accent: #FFD700;
-  --success: #48BB78;
-  --error: #FC4F62;
-  --warning: #ED8936;
-  --info: #4299E1;
+  --success: #10B981;
+  --error: #EF4444;
+  --warning: #F59E0B;
+  --info: #3B82F6;
 }
 
 body {

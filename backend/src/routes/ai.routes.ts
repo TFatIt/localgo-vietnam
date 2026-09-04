@@ -14,6 +14,7 @@ router.use(optionalAuthenticate);
 router.use(aiRateLimiter);
 
 router.post('/plan', generateTravelPlan);
+router.post('/generate-itinerary', generateTravelPlan);
 router.post('/chat', chatWithAI);
 router.post('/chat/stream', chatStream);
 router.post('/journal-story', generateJournalStory);

@@ -1,0 +1,1695 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LocalGo Vietnam - Quản Trị Hệ Thống & Giao Diện Du Lịch Việt</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #E8302A;
+      --primary-dark: #C0251F;
+      --primary-light: #FF5A52;
+      --gold: #FFB800;
+      --gold-dark: #E6A600;
+      --navy: #0D1B2E;
+      --navy-light: #18283E;
+      --bg: #F4F6F9;
+      --card-bg: #FFFFFF;
+      --text: #1E293B;
+      --text-muted: #64748B;
+      --border: #E2E8F0;
+      --success: #10B981;
+      --warning: #F59E0B;
+      --danger: #EF4444;
+      --radius: 10px;
+      --shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.06);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Plus Jakarta Sans', 'Be Vietnam Pro', -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* SIDEBAR */
+    .sidebar {
+      width: 270px;
+      background: var(--navy);
+      color: #fff;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      border-right: 1px solid rgba(255,255,255,0.05);
+      z-index: 100;
+    }
+    .brand-header {
+      padding: 22px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      background: linear-gradient(135deg, rgba(232, 48, 42, 0.2), transparent);
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+    }
+    .brand-logo-badge {
+      width: 44px;
+      height: 44px;
+      background: linear-gradient(135deg, var(--primary), var(--gold));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+      box-shadow: 0 4px 12px rgba(232, 48, 42, 0.35);
+    }
+    .brand-title {
+      font-size: 16px;
+      font-weight: 800;
+      letter-spacing: -0.2px;
+      color: #FFF;
+      line-height: 1.2;
+    }
+    .brand-tag {
+      font-size: 11px;
+      color: var(--gold);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .nav-menu {
+      padding: 16px 12px;
+      flex: 1;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .nav-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #64748b;
+      padding: 12px 14px 4px;
+      font-weight: 700;
+    }
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 11px 14px;
+      color: #94A3B8;
+      text-decoration: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+    .nav-link:hover {
+      background: rgba(255,255,255,0.06);
+      color: #FFF;
+    }
+    .nav-link.active {
+      background: var(--primary);
+      color: #FFF;
+      box-shadow: 0 4px 12px rgba(232, 48, 42, 0.3);
+    }
+    .nav-icon { font-size: 17px; width: 22px; text-align: center; }
+
+    .sidebar-footer {
+      padding: 16px 20px;
+      border-top: 1px solid rgba(255,255,255,0.08);
+      background: rgba(0,0,0,0.15);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .admin-profile { display: flex; align-items: center; gap: 10px; }
+    .admin-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--gold);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      color: var(--navy);
+      font-size: 14px;
+    }
+
+    /* MAIN CONTENT */
+    .main-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      min-width: 0;
+      height: 100vh;
+      overflow-y: auto;
+    }
+
+    /* TOP BAR */
+    .topbar {
+      background: #FFF;
+      height: 70px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      position: sticky;
+      top: 0;
+      z-index: 90;
+    }
+    .topbar-left { display: flex; align-items: center; gap: 16px; }
+    .hotline-banner {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(232, 48, 42, 0.08);
+      border: 1px solid rgba(232, 48, 42, 0.2);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .hotline-banner span { font-weight: 800; }
+    .topbar-right { display: flex; align-items: center; gap: 14px; }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: #ECFDF5;
+      color: #065F46;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid #A7F3D0;
+    }
+    .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--success); }
+    .status-badge.ai {
+      background: #EFF6FF;
+      color: #1E40AF;
+      border-color: #BFDBFE;
+    }
+    .status-badge.ai .status-dot { background: #3B82F6; }
+
+    /* CONTENT BODY */
+    .content-area {
+      padding: 28px;
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* HEADING BANNER (DulichViet Style) */
+    .page-header-banner {
+      background: linear-gradient(135deg, #0D1B2E 0%, #18283E 60%, #851815 100%);
+      color: #fff;
+      padding: 24px 28px;
+      border-radius: 12px;
+      margin-bottom: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: 0 8px 24px rgba(13, 27, 46, 0.15);
+      border-left: 5px solid var(--primary);
+    }
+    .page-header-title { font-size: 22px; font-weight: 800; color: #FFF; margin-bottom: 4px; }
+    .page-header-desc { font-size: 13px; color: #CBD5E1; }
+    .header-actions { display: flex; gap: 10px; }
+
+    /* BUTTONS */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 18px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 700;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: #fff;
+      box-shadow: 0 4px 12px rgba(232, 48, 42, 0.25);
+    }
+    .btn-primary:hover { background: var(--primary-dark); transform: translateY(-1px); }
+    .btn-gold {
+      background: var(--gold);
+      color: var(--navy);
+      box-shadow: 0 4px 12px rgba(255, 184, 0, 0.3);
+    }
+    .btn-gold:hover { background: var(--gold-dark); transform: translateY(-1px); }
+    .btn-outline {
+      background: #FFF;
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+    .btn-outline:hover { background: #F8FAFC; border-color: #CBD5E1; }
+    .btn-danger { background: var(--danger); color: #fff; }
+    .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
+
+    /* STATS GRID */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: #FFF;
+      padding: 20px;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      box-shadow: var(--shadow);
+      transition: transform 0.2s ease;
+    }
+    .stat-card:hover { transform: translateY(-2px); }
+    .stat-info h4 { font-size: 13px; color: var(--text-muted); font-weight: 600; margin-bottom: 6px; }
+    .stat-info .stat-value { font-size: 26px; font-weight: 800; color: var(--navy); }
+    .stat-info .stat-sub { font-size: 11px; color: var(--success); font-weight: 600; margin-top: 4px; }
+    .stat-icon-wrap {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 22px;
+    }
+    .stat-icon-red { background: rgba(232, 48, 42, 0.1); color: var(--primary); }
+    .stat-icon-gold { background: rgba(255, 184, 0, 0.15); color: var(--gold-dark); }
+    .stat-icon-blue { background: rgba(59, 130, 246, 0.1); color: #2563EB; }
+    .stat-icon-green { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+
+    /* CARD CONTAINER */
+    .card {
+      background: #FFF;
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow);
+      margin-bottom: 24px;
+      overflow: hidden;
+    }
+    .card-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #FAFCFE;
+    }
+    .card-header h3 {
+      font-size: 16px;
+      font-weight: 800;
+      color: var(--navy);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .card-body { padding: 24px; }
+
+    /* TABS */
+    .tab-content { display: none; }
+    .tab-content.active { display: block; animation: fadeIn 0.25s ease-in-out; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
+    /* TABLE */
+    .table-responsive { width: 100%; overflow-x: auto; }
+    .custom-table { width: 100%; border-collapse: collapse; text-align: left; }
+    .custom-table th {
+      padding: 12px 16px;
+      background: #F8FAFC;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .custom-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #F1F5F9;
+      font-size: 13px;
+      vertical-align: middle;
+    }
+    .custom-table tr:hover { background: #FAFCFE; }
+    .table-thumb {
+      width: 60px;
+      height: 42px;
+      border-radius: 6px;
+      object-fit: cover;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .badge-red { background: #FEE2E2; color: #DC2626; }
+    .badge-gold { background: #FEF3C7; color: #B45309; }
+    .badge-green { background: #DCFCE7; color: #15803D; }
+    .badge-blue { background: #DBEAFE; color: #1D4ED8; }
+
+    /* FORM STYLES */
+    .form-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 18px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--navy);
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+    .form-control {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 14px;
+      color: var(--text);
+      outline: none;
+      transition: border-color 0.2s ease;
+      font-family: inherit;
+    }
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(232, 48, 42, 0.12);
+    }
+    textarea.form-control { min-height: 90px; resize: vertical; }
+
+    /* BANNER EDITOR ITEMS */
+    .banner-item-card {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 14px;
+      background: #FAFCFE;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      transition: all 0.2s ease;
+    }
+    .banner-item-card:hover { border-color: #CBD5E1; background: #FFF; }
+    .banner-preview-img {
+      width: 140px;
+      height: 80px;
+      border-radius: 6px;
+      object-fit: cover;
+      background: #E2E8F0;
+      flex-shrink: 0;
+    }
+    .banner-item-info { flex: 1; }
+
+    /* TOAST */
+    #toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .toast {
+      background: var(--navy);
+      color: #fff;
+      padding: 14px 20px;
+      border-radius: 8px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+      font-size: 13px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-left: 4px solid var(--primary);
+      animation: slideIn 0.3s ease;
+    }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .toast.success { border-left-color: var(--success); }
+    .toast.error { border-left-color: var(--danger); }
+
+    /* MODAL */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(13, 27, 46, 0.6);
+      backdrop-filter: blur(4px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+      background: #FFF;
+      border-radius: 12px;
+      max-width: 650px;
+      width: 100%;
+      max-height: 90vh;
+      overflow-y: auto;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+    }
+    .modal-header {
+      padding: 18px 24px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #FAFCFE;
+    }
+    .modal-title { font-size: 16px; font-weight: 800; color: var(--navy); }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+    .modal-body { padding: 24px; }
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+      background: #FAFCFE;
+    }
+
+    /* LIVE PREVIEW BANNER */
+    .live-preview-box {
+      background: #0D1B2E;
+      border-radius: 10px;
+      padding: 20px;
+      color: #fff;
+      margin-top: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .live-preview-box::before {
+      content: '';
+      position: absolute;
+      top: 0; right: 0;
+      width: 200px; height: 100%;
+      background: radial-gradient(circle, rgba(232, 48, 42, 0.3) 0%, transparent 70%);
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 900px) {
+      .sidebar { width: 70px; }
+      .brand-title, .brand-tag, .nav-link span, .nav-label, .admin-profile div { display: none; }
+      .brand-header { justify-content: center; padding: 16px 0; }
+      .nav-link { justify-content: center; padding: 12px; }
+      .hotline-banner { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar">
+    <div class="brand-header">
+      <div class="brand-logo-badge">🇻🇳</div>
+      <div>
+        <div class="brand-title">LocalGo Vietnam</div>
+        <div class="brand-tag">Giao Diện Du Lịch Việt</div>
+      </div>
+    </div>
+
+    <nav class="nav-menu">
+      <div class="nav-label">Chính</div>
+      <a class="nav-link active" onclick="switchTab('dashboard')">
+        <span class="nav-icon">📊</span>
+        <span>Tổng Quan</span>
+      </a>
+      <a class="nav-link" onclick="switchTab('cms')">
+        <span class="nav-icon">🎨</span>
+        <span>Chỉnh Sửa Giao Diện</span>
+      </a>
+
+      <div class="nav-label">Quản Lý Dữ Liệu</div>
+      <a class="nav-link" onclick="switchTab('places')">
+        <span class="nav-icon">📍</span>
+        <span>Điểm Đến & Tour</span>
+      </a>
+      <a class="nav-link" onclick="switchTab('users')">
+        <span class="nav-icon">👥</span>
+        <span>Người Dùng</span>
+      </a>
+      <a class="nav-link" onclick="switchTab('reviews')">
+        <span class="nav-icon">⭐</span>
+        <span>Đánh Giá & Phản Hồi</span>
+      </a>
+
+      <div class="nav-label">Công Nghệ & AI</div>
+      <a class="nav-link" onclick="switchTab('ai')">
+        <span class="nav-icon">🤖</span>
+        <span>Trợ Lý AI Gemini 3.8</span>
+      </a>
+      <a class="nav-link" href="http://localhost:8081" target="_blank">
+        <span class="nav-icon">📱</span>
+        <span>Mở Web / App</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="admin-profile">
+        <div class="admin-avatar">AD</div>
+        <div>
+          <div style="font-size: 13px; font-weight: 700;">Quản Trị Viên</div>
+          <div style="font-size: 11px; color: #94A3B8;">admin@localgo.vn</div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MAIN WRAPPER -->
+  <main class="main-wrapper">
+    <!-- TOPBAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <div class="hotline-banner">
+          📞 Hotline CSKH: <span id="topbar-hotline">1900 1177</span>
+        </div>
+        <div style="font-size: 12px; color: var(--text-muted); font-weight: 600;">
+          Hệ thống Quản trị & CMS Du Lịch Việt Nam
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="status-badge">
+          <span class="status-dot"></span>
+          <span>Backend API: Port 5000</span>
+        </div>
+        <div class="status-badge ai">
+          <span class="status-dot"></span>
+          <span>Gemini 3.8 Flash Online</span>
+        </div>
+      </div>
+    </header>
+
+    <!-- CONTENT AREA -->
+    <div class="content-area">
+
+      <!-- TAB 1: TỔNG QUAN (DASHBOARD) -->
+      <section id="tab-dashboard" class="tab-content active">
+        <div class="page-header-banner">
+          <div>
+            <h1 class="page-header-title">Hệ Thống Quản Trị Du Lịch Việt - LocalGo</h1>
+            <p class="page-header-desc">Quản lý toàn diện điểm đến du lịch, tour tuyến, người dùng và tùy chỉnh giao diện trang chủ theo phong cách DulichViet.com.vn</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-gold" onclick="switchTab('cms')">🎨 Tùy Chỉnh Giao Diện</button>
+            <button class="btn btn-primary" onclick="openAddPlaceModal()">➕ Thêm Điểm Đến</button>
+          </div>
+        </div>
+
+        <!-- STATS GRID -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-info">
+              <h4>TỔNG ĐIỂM ĐẾN & TOUR</h4>
+              <div class="stat-value" id="stat-places">0</div>
+              <div class="stat-sub">📍 63 Tỉnh thành toàn quốc</div>
+            </div>
+            <div class="stat-icon-wrap stat-icon-red">🏖️</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <h4>NGƯỜI DÙNG DU LỊCH</h4>
+              <div class="stat-value" id="stat-users">0</div>
+              <div class="stat-sub">👥 Đang hoạt động</div>
+            </div>
+            <div class="stat-icon-wrap stat-icon-gold">👤</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <h4>LƯỢT ĐÁNH GIÁ & REVIEW</h4>
+              <div class="stat-value" id="stat-reviews">0</div>
+              <div class="stat-sub">⭐ Trải nghiệm thực tế</div>
+            </div>
+            <div class="stat-icon-wrap stat-icon-blue">💬</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <h4>LƯỢT CHECK-IN</h4>
+              <div class="stat-value" id="stat-checkins">0</div>
+              <div class="stat-sub">🚀 Tương tác trên App</div>
+            </div>
+            <div class="stat-icon-wrap stat-icon-green">🎯</div>
+          </div>
+        </div>
+
+        <!-- TWO COLUMNS -->
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+          <!-- RECENT PLACES -->
+          <div class="card">
+            <div class="card-header">
+              <h3><span>📍</span> Điểm Đến Du Lịch Nổi Bật Vừa Cập Nhật</h3>
+              <button class="btn btn-sm btn-outline" onclick="switchTab('places')">Xem tất cả</button>
+            </div>
+            <div class="card-body" style="padding: 0;">
+              <div class="table-responsive">
+                <table class="custom-table" id="dashboard-places-table">
+                  <thead>
+                    <tr>
+                      <th>Ảnh</th>
+                      <th>Tên Điểm Đến</th>
+                      <th>Tỉnh / Thành</th>
+                      <th>Danh Mục</th>
+                      <th>Đánh Giá</th>
+                      <th>Trạng Thái</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td colspan="6" style="text-align:center; padding: 20px; color: #94A3B8;">Đang tải dữ liệu...</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- TOP PROVINCES -->
+          <div class="card">
+            <div class="card-header">
+              <h3><span>🇻🇳</span> Top Tỉnh Thành Thu Hút</h3>
+            </div>
+            <div class="card-body" id="top-provinces-list">
+              <div style="color: #94A3B8; text-align: center; padding: 20px;">Đang tải danh sách...</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: CHỈNH SỬA GIAO DIỆN (CMS DULICHVIET STYLE) -->
+      <section id="tab-cms" class="tab-content">
+        <div class="page-header-banner">
+          <div>
+            <h1 class="page-header-title">🎨 Chỉnh Sửa Giao Diện & Nội Dung (DulichViet.com.vn)</h1>
+            <p class="page-header-desc">Tùy biến thương hiệu, Hotline hỗ trợ, Banner quảng cáo trang chủ, Chương trình khuyến mãi và màu sắc chủ đạo.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-gold" onclick="saveSiteSettings()">💾 Lưu Giao Diện</button>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1.6fr 1fr; gap: 24px;">
+          <div>
+            <!-- BRANDING & CONTACT INFO -->
+            <div class="card">
+              <div class="card-header">
+                <h3><span>🏢</span> Thông Tin Thương Hiệu & CSKH (DulichViet)</h3>
+              </div>
+              <div class="card-body">
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label>Tên Hệ Thống Website</label>
+                    <input type="text" id="cms-siteName" class="form-control" />
+                  </div>
+                  <div class="form-group">
+                    <label>Hotline CSKH (24/7)</label>
+                    <input type="text" id="cms-hotline" class="form-control" placeholder="1900 1177" />
+                  </div>
+                  <div class="form-group">
+                    <label>Email Hỗ Trợ Khách Hàng</label>
+                    <input type="text" id="cms-supportEmail" class="form-control" />
+                  </div>
+                  <div class="form-group">
+                    <label>Giờ Làm Việc</label>
+                    <input type="text" id="cms-workingHours" class="form-control" />
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Địa Chỉ Trụ Sở Công Ty</label>
+                  <input type="text" id="cms-companyAddress" class="form-control" />
+                </div>
+
+                <div class="form-group">
+                  <label>🔥 Dải Thông Báo Khuyến Mãi Đầu Trang (Announcement Bar)</label>
+                  <input type="text" id="cms-announcement" class="form-control" />
+                </div>
+              </div>
+            </div>
+
+            <!-- HERO SECTION & COLORS -->
+            <div class="card">
+              <div class="card-header">
+                <h3><span>🌟</span> Tiêu Đề Banner & Màu Sắc Nhận Diện</h3>
+              </div>
+              <div class="card-body">
+                <div class="form-group">
+                  <label>Tiêu Đề Lớn Trang Chủ (Hero Title)</label>
+                  <input type="text" id="cms-heroTitle" class="form-control" />
+                </div>
+                <div class="form-group">
+                  <label>Mô Tả Phụ (Hero Subtitle)</label>
+                  <textarea id="cms-heroSubtitle" class="form-control"></textarea>
+                </div>
+
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label>Màu Chủ Đạo (Primary Red)</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                      <input type="color" id="cms-primaryColor" value="#E8302A" style="width: 50px; height: 38px; border: none; border-radius: 6px; cursor: pointer;" />
+                      <input type="text" id="cms-primaryColorText" class="form-control" value="#E8302A" />
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label>Màu Điểm Nhấn (Secondary Gold)</label>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                      <input type="color" id="cms-secondaryColor" value="#FFB800" style="width: 50px; height: 38px; border: none; border-radius: 6px; cursor: pointer;" />
+                      <input type="text" id="cms-secondaryColorText" class="form-control" value="#FFB800" />
+                    </div>
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Bản Quyền Chân Trang (Footer)</label>
+                  <input type="text" id="cms-footerText" class="form-control" />
+                </div>
+              </div>
+            </div>
+
+            <!-- HOME BANNERS & SLIDERS -->
+            <div class="card">
+              <div class="card-header">
+                <h3><span>🖼️</span> Quản Lý Banner Slider Trang Chủ (Khuyến Mãi & Tour Hot)</h3>
+                <button class="btn btn-sm btn-primary" onclick="addBannerItem()">➕ Thêm Banner</button>
+              </div>
+              <div class="card-body" id="banner-items-container">
+                <!-- Banner items will be rendered dynamically -->
+              </div>
+            </div>
+          </div>
+
+          <!-- RIGHT PREVIEW -->
+          <div>
+            <div class="card" style="position: sticky; top: 90px;">
+              <div class="card-header">
+                <h3><span>👁️</span> Xem Trước Giao Diện Du Lịch Việt</h3>
+              </div>
+              <div class="card-body">
+                <div style="background: #E8302A; color: #fff; padding: 8px 12px; border-radius: 6px; font-size: 11px; font-weight: 700; margin-bottom: 12px; text-align: center;" id="preview-announcement">
+                  🔥 Chào Hè 2026: Ưu đãi giảm đến 40% Tour Biển Đảo!
+                </div>
+
+                <div style="background: #0D1B2E; color: #fff; border-radius: 8px; padding: 18px; margin-bottom: 14px; position: relative; overflow: hidden;">
+                  <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
+                    <div style="font-weight: 800; font-size: 14px; color: #FFF;">🇻🇳 <span id="preview-siteName">LocalGo Vietnam</span></div>
+                    <div style="font-size: 11px; color: #FFB800; font-weight: 700;">📞 <span id="preview-hotline">1900 1177</span></div>
+                  </div>
+                  <h4 style="font-size: 16px; font-weight: 800; margin-bottom: 6px; color: #FFF;" id="preview-heroTitle">Khám Phá Việt Nam Tươi Đẹp</h4>
+                  <p style="font-size: 12px; color: #CBD5E1; line-height: 1.4; margin-bottom: 12px;" id="preview-heroSubtitle">Hơn 500+ điểm đến và tour trọn gói với AI Gemini 3.8</p>
+                  <button style="background: #E8302A; color: #fff; border: none; padding: 6px 14px; border-radius: 6px; font-size: 11px; font-weight: 700;">Đặt Tour Ngay</button>
+                </div>
+
+                <div style="font-size: 12px; font-weight: 700; color: var(--navy); margin-bottom: 8px;">Banner Tour Đầu Trang Đang Bật:</div>
+                <div id="preview-banner-cards" style="display: flex; flex-direction: column; gap: 8px;"></div>
+
+                <div style="margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--border); text-align: center;">
+                  <button class="btn btn-primary" style="width: 100%; justify-content: center;" onclick="saveSiteSettings()">
+                    💾 Lưu Cấu Hình Giao Diện Ngay
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: QUẢN LÝ ĐIỂM ĐẾN & TOUR -->
+      <section id="tab-places" class="tab-content">
+        <div class="page-header-banner">
+          <div>
+            <h1 class="page-header-title">📍 Quản Lý Tour & Điểm Đến Du Lịch</h1>
+            <p class="page-header-desc">Thêm mới, sửa, duyệt và quản lý danh sách điểm du lịch trên toàn lãnh thổ Việt Nam.</p>
+          </div>
+          <div class="header-actions">
+            <button class="btn btn-primary" onclick="openAddPlaceModal()">➕ Thêm Điểm Đến Mới</button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <div style="display: flex; gap: 12px; align-items: center; flex: 1;">
+              <input type="text" id="search-place-input" class="form-control" style="max-width: 320px;" placeholder="🔍 Tìm kiếm theo tên điểm đến, tour..." onkeyup="filterPlaces()" />
+              <select id="filter-province" class="form-control" style="max-width: 200px;" onchange="loadPlaces()">
+                <option value="">-- Tất cả Tỉnh/Thành --</option>
+                <option value="Quảng Ninh">Quảng Ninh</option>
+                <option value="Đà Nẵng">Đà Nẵng</option>
+                <option value="Lào Cai">Lào Cai (Sa Pa)</option>
+                <option value="Kiên Giang">Kiên Giang (Phú Quốc)</option>
+                <option value="Lâm Đồng">Lâm Đồng (Đà Lạt)</option>
+                <option value="Hà Nội">Hà Nội</option>
+                <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
+                <option value="Ninh Bình">Ninh Bình</option>
+                <option value="Thừa Thiên Huế">Thừa Thiên Huế</option>
+                <option value="Quảng Nam">Quảng Nam (Hội An)</option>
+              </select>
+            </div>
+            <button class="btn btn-outline btn-sm" onclick="loadPlaces()">🔄 Làm mới</button>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <div class="table-responsive">
+              <table class="custom-table" id="places-table">
+                <thead>
+                  <tr>
+                    <th>Ảnh</th>
+                    <th>Tên Điểm Đến / Tour</th>
+                    <th>Tỉnh Thành</th>
+                    <th>Thể Loại</th>
+                    <th>Giá Tham Khảo</th>
+                    <th>Đánh Giá</th>
+                    <th>Xác Thực</th>
+                    <th>Hành Động</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td colspan="8" style="text-align:center; padding: 24px; color: #94A3B8;">Đang tải danh sách điểm đến...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 4: QUẢN LÝ NGƯỜI DÙNG -->
+      <section id="tab-users" class="tab-content">
+        <div class="page-header-banner">
+          <div>
+            <h1 class="page-header-title">👥 Quản Lý Tài Khoản Khách Hàng & Hướng Dẫn Viên</h1>
+            <p class="page-header-desc">Xem danh sách người dùng, cấp quyền Quản trị (Admin) / Hướng dẫn viên (Guide) và trạng thái hoạt động.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <input type="text" id="search-user-input" class="form-control" style="max-width: 320px;" placeholder="🔍 Tìm theo email, họ tên..." onkeyup="filterUsers()" />
+            <button class="btn btn-outline btn-sm" onclick="loadUsers()">🔄 Làm mới</button>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <div class="table-responsive">
+              <table class="custom-table" id="users-table">
+                <thead>
+                  <tr>
+                    <th>Người Dùng</th>
+                    <th>Email</th>
+                    <th>Vai Trò</th>
+                    <th>Cấp Độ (Level)</th>
+                    <th>Điểm Tích Lũy</th>
+                    <th>Trạng Thái</th>
+                    <th>Thao Tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td colspan="7" style="text-align:center; padding: 24px; color: #94A3B8;">Đang tải danh sách người dùng...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 5: ĐÁNH GIÁ & REVIEWS -->
+      <section id="tab-reviews" class="tab-content">
+        <div class="page-header-banner">
+          <div>
+            <h1 class="page-header-title">⭐ Quản Lý Đánh Giá & Trải Nghiệm Du Khách</h1>
+            <p class="page-header-desc">Kiểm duyệt phản hồi từ cộng đồng du lịch, bảo vệ uy tín thương hiệu du lịch Việt Nam.</p>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3><span>💬</span> Danh Sách Phản Hồi Từ Du Khách</h3>
+            <button class="btn btn-outline btn-sm" onclick="loadReviews()">🔄 Làm mới</button>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <div class="table-responsive">
+              <table class="custom-table" id="reviews-table">
+                <thead>
+                  <tr>
+                    <th>Khách Hàng</th>
+                    <th>Điểm Đến / Tour</th>
+                    <th>Đánh Giá Sao</th>
+                    <th>Nội Dung Nhận Xét</th>
+                    <th>Ngày Đăng</th>
+                    <th>Thao Tác</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr><td colspan="6" style="text-align:center; padding: 24px; color: #94A3B8;">Đang tải danh sách đánh giá...</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 6: TRỢ LÝ AI GEMINI 3.8 -->
+      <section id="tab-ai" class="tab-content">
+        <div class="page-header-banner">
+          <div>
+            <h1 class="page-header-title">🤖 Trợ Lý Trí Tuệ Nhân Tạo Google Gemini 3.8 Flash</h1>
+            <p class="page-header-desc">Kiểm tra kết nối và tạo thử nghiệm lịch trình tour du lịch Việt Nam thông minh bằng mô hình AI Gemini 3.8 thế hệ mới nhất.</p>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+          <!-- INPUT FORM -->
+          <div class="card">
+            <div class="card-header">
+              <h3><span>✨</span> Tạo Lịch Trình Tour Du Lịch Bằng AI</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label>Tỉnh Thành / Địa Điểm Muốn Đi</label>
+                <input type="text" id="ai-destination" class="form-control" value="Đà Nẵng - Hội An" placeholder="VD: Đà Nẵng, Phú Quốc, Sa Pa, Hà Giang..." />
+              </div>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Số Ngày Đi</label>
+                  <select id="ai-days" class="form-control">
+                    <option value="2 ngày 1 đêm">2 Ngày 1 Đêm</option>
+                    <option value="3 ngày 2 đêm" selected>3 Ngày 2 Đêm</option>
+                    <option value="4 ngày 3 đêm">4 Ngày 3 Đêm</option>
+                    <option value="5 ngày 4 đêm">5 Ngày 4 Đêm</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Phong Cách Du Lịch</label>
+                  <select id="ai-style" class="form-control">
+                    <option value="Nghỉ dưỡng & Biển đảo" selected>Nghỉ dưỡng & Biển đảo</option>
+                    <option value="Khám phá văn hóa & ẩm thực">Khám phá văn hóa & Ẩm thực</option>
+                    <option value="Phượt & Trải nghiệm thiên nhiên">Phượt & Trải nghiệm thiên nhiên</option>
+                    <option value="Gia đình có trẻ nhỏ & người lớn tuổi">Gia đình có người lớn & trẻ em</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label>Ngân Sách Dự Kiến</label>
+                <select id="ai-budget" class="form-control">
+                  <option value="Tiết kiệm">Tiết kiệm (Dưới 3 triệu/người)</option>
+                  <option value="Tiêu chuẩn" selected>Tiêu chuẩn (3 - 6 triệu/người)</option>
+                  <option value="Cao cấp">Cao cấp (Trên 6 triệu/người)</option>
+                </select>
+              </div>
+              <button class="btn btn-primary" style="width: 100%; justify-content: center;" id="ai-generate-btn" onclick="generateAIItinerary()">
+                🚀 Tạo Lịch Trình Ngay Với Gemini 3.8
+              </button>
+            </div>
+          </div>
+
+          <!-- RESULT DISPLAY -->
+          <div class="card">
+            <div class="card-header">
+              <h3><span>📋</span> Kết Quả Lịch Trình Tự Động (AI Output)</h3>
+            </div>
+            <div class="card-body">
+              <div id="ai-result-box" style="min-height: 280px; max-height: 480px; overflow-y: auto; background: #FAFCFE; border: 1px solid var(--border); border-radius: 8px; padding: 18px; font-size: 13px; line-height: 1.6; white-space: pre-wrap;">
+Nhập thông tin bên trái và bấm 'Tạo Lịch Trình Ngay' để Trợ lý AI Gemini 3.8 Flash sinh ra kế hoạch du lịch chi tiết kèm các địa danh nổi tiếng của Việt Nam.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- MODAL: ADD / EDIT PLACE -->
+  <div class="modal-overlay" id="place-modal">
+    <div class="modal-box">
+      <div class="modal-header">
+        <h3 class="modal-title" id="place-modal-title">➕ Thêm Điểm Đến Du Lịch Mới</h3>
+        <button class="modal-close" onclick="closePlaceModal()">✕</button>
+      </div>
+      <div class="modal-body">
+        <form id="place-form" onsubmit="handlePlaceSubmit(event)">
+          <input type="hidden" id="modal-place-id" />
+          <div class="form-group">
+            <label>Tên Điểm Đến / Tour (*)</label>
+            <input type="text" id="modal-place-name" class="form-control" required placeholder="VD: Vịnh Hạ Long, Cầu Vàng Bà Nà Hills..." />
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Tỉnh / Thành Phố (*)</label>
+              <input type="text" id="modal-place-province" class="form-control" required placeholder="VD: Quảng Ninh, Đà Nẵng, Kiên Giang..." />
+            </div>
+            <div class="form-group">
+              <label>Danh Mục (*)</label>
+              <select id="modal-place-category" class="form-control">
+                <option value="beach">Biển Đảo (Beach)</option>
+                <option value="mountain">Núi Rừng (Mountain)</option>
+                <option value="historical">Di Tích Lịch Sử (Historical)</option>
+                <option value="national_park">Vườn Quốc Gia (National Park)</option>
+                <option value="temple">Chùa & Tâm Linh (Temple)</option>
+                <option value="restaurant">Ẩm Thực Đặc Sản (Restaurant)</option>
+                <option value="hotel">Khách Sạn & Resort (Hotel)</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Địa Chỉ Chi Tiết</label>
+            <input type="text" id="modal-place-address" class="form-control" placeholder="VD: Bãi Cháy, TP. Hạ Long, Tỉnh Quảng Ninh" />
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Giá Vé / Giá Tour Tham Khảo (VNĐ)</label>
+              <input type="number" id="modal-place-price" class="form-control" placeholder="VD: 250000" />
+            </div>
+            <div class="form-group">
+              <label>Link Ảnh Đại Diện (Cover Image)</label>
+              <input type="url" id="modal-place-image" class="form-control" placeholder="https://..." value="https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=1000&auto=format&fit=crop" />
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Mô Tả Giới Thiệu Điểm Đến</label>
+            <textarea id="modal-place-desc" class="form-control" placeholder="Mô tả vẻ đẹp, các hoạt động trải nghiệm đặc sắc..."></textarea>
+          </div>
+          <div class="modal-footer" style="margin: 0 -24px -24px -24px;">
+            <button type="button" class="btn btn-outline" onclick="closePlaceModal()">Hủy Bỏ</button>
+            <button type="submit" class="btn btn-primary">💾 Lưu Điểm Đến</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container"></div>
+
+  <!-- JAVASCRIPT LOGIC -->
+  <script>
+    const API_BASE = '/api/v1';
+    const AUTH_HEADER = {
+      'Authorization': 'Bearer dev-admin-token',
+      'Content-Type': 'application/json'
+    };
+
+    let siteSettings = null;
+    let allPlaces = [];
+    let allUsers = [];
+
+    // INIT ON LOAD
+    document.addEventListener('DOMContentLoaded', () => {
+      loadDashboardStats();
+      loadSiteSettings();
+      loadPlaces();
+      loadUsers();
+      loadReviews();
+
+      // Sync color inputs
+      document.getElementById('cms-primaryColor').addEventListener('input', (e) => {
+        document.getElementById('cms-primaryColorText').value = e.target.value;
+      });
+      document.getElementById('cms-secondaryColor').addEventListener('input', (e) => {
+        document.getElementById('cms-secondaryColorText').value = e.target.value;
+      });
+    });
+
+    // TABS
+    function switchTab(tabId) {
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+
+      const target = document.getElementById(`tab-${tabId}`);
+      if (target) target.classList.add('active');
+
+      const activeNav = Array.from(document.querySelectorAll('.nav-link')).find(el => el.getAttribute('onclick')?.includes(tabId));
+      if (activeNav) activeNav.classList.add('active');
+    }
+
+    // TOAST NOTIFICATIONS
+    function showToast(message, type = 'success') {
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `<span>${type === 'success' ? '✅' : '❌'}</span><span>${message}</span>`;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+
+    // DASHBOARD STATS
+    async function loadDashboardStats() {
+      try {
+        const res = await fetch(`${API_BASE}/admin/dashboard`, { headers: AUTH_HEADER });
+        const json = await res.json();
+        if (json.success && json.data) {
+          const stats = json.data.stats || {};
+          document.getElementById('stat-places').textContent = stats.totalPlaces || 0;
+          document.getElementById('stat-users').textContent = stats.totalUsers || 0;
+          document.getElementById('stat-reviews').textContent = stats.totalReviews || 0;
+          document.getElementById('stat-checkins').textContent = stats.totalCheckIns || 0;
+
+          // Top Provinces
+          const topList = json.data.topProvinces || [];
+          const container = document.getElementById('top-provinces-list');
+          if (topList.length > 0) {
+            container.innerHTML = topList.map((p, idx) => `
+              <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 0; border-bottom:1px solid #F1F5F9;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                  <span style="font-weight:800; color:var(--primary); width:20px;">#${idx+1}</span>
+                  <span style="font-weight:600;">${p._id || 'Khác'}</span>
+                </div>
+                <span class="badge badge-gold">${p.count} lượt check-in</span>
+              </div>
+            `).join('');
+          } else {
+            container.innerHTML = '<div style="color:#94A3B8; text-align:center; padding:16px;">Chưa có dữ liệu check-in</div>';
+          }
+        }
+      } catch (err) {
+        console.error('Error loading stats:', err);
+      }
+    }
+
+    // SITE SETTINGS (CMS)
+    async function loadSiteSettings() {
+      try {
+        const res = await fetch(`${API_BASE}/admin/settings`, { headers: AUTH_HEADER });
+        const json = await res.json();
+        if (json.success && json.data && json.data.settings) {
+          siteSettings = json.data.settings;
+          renderCmsForm(siteSettings);
+          renderPreview(siteSettings);
+        }
+      } catch (err) {
+        console.error('Error loading settings:', err);
+      }
+    }
+
+    function renderCmsForm(settings) {
+      document.getElementById('cms-siteName').value = settings.siteName || '';
+      document.getElementById('cms-hotline').value = settings.hotline || '';
+      document.getElementById('cms-supportEmail').value = settings.supportEmail || '';
+      document.getElementById('cms-workingHours').value = settings.workingHours || '';
+      document.getElementById('cms-companyAddress').value = settings.companyAddress || '';
+      document.getElementById('cms-announcement').value = settings.headerAnnouncement || '';
+      document.getElementById('cms-heroTitle').value = settings.heroTitle || '';
+      document.getElementById('cms-heroSubtitle').value = settings.heroSubtitle || '';
+      document.getElementById('cms-primaryColor').value = settings.primaryColor || '#E8302A';
+      document.getElementById('cms-primaryColorText').value = settings.primaryColor || '#E8302A';
+      document.getElementById('cms-secondaryColor').value = settings.secondaryColor || '#FFB800';
+      document.getElementById('cms-secondaryColorText').value = settings.secondaryColor || '#FFB800';
+      document.getElementById('cms-footerText').value = settings.footerText || '';
+      document.getElementById('topbar-hotline').textContent = settings.hotline || '1900 1177';
+
+      // Render Banners
+      renderBannerList(settings.banners || []);
+    }
+
+    function renderBannerList(banners) {
+      const container = document.getElementById('banner-items-container');
+      if (!banners.length) {
+        container.innerHTML = '<div style="color:#94A3B8; text-align:center; padding:14px;">Chưa có banner nào.</div>';
+        return;
+      }
+      container.innerHTML = banners.map((b, idx) => `
+        <div class="banner-item-card">
+          <img src="${b.imageUrl}" class="banner-preview-img" onerror="this.src='https://placehold.co/140x80?text=Tour+Banner'" />
+          <div class="banner-item-info">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+              <span class="badge badge-red">${b.badge || 'HOT'}</span>
+              <button class="btn btn-sm btn-danger" onclick="removeBannerItem(${idx})">🗑️ Xóa</button>
+            </div>
+            <div style="font-weight:700; font-size:14px; margin-bottom:2px;">${b.title}</div>
+            <div style="font-size:12px; color:var(--text-muted);">${b.subtitle || ''}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function addBannerItem() {
+      const title = prompt('Nhập tiêu đề tour / banner mới:', 'Tour Khám Phá Tây Bắc - Săn Mây Y Tý');
+      if (!title) return;
+      const subtitle = prompt('Nhập phụ đề ưu đãi:', 'Giảm 25% cho nhóm từ 4 khách');
+      const imageUrl = prompt('Nhập link ảnh banner:', 'https://images.unsplash.com/photo-1544644181-1484b3fdfc62?q=80&w=1200&auto=format&fit=crop');
+      const badge = prompt('Nhập nhãn badge (VD: HOT, GIẢM 30%):', 'ƯU ĐÃI');
+
+      if (!siteSettings.banners) siteSettings.banners = [];
+      siteSettings.banners.push({
+        id: 'b_' + Date.now(),
+        title,
+        subtitle: subtitle || '',
+        imageUrl: imageUrl || 'https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=1200&auto=format&fit=crop',
+        linkUrl: '#',
+        badge: badge || 'HOT',
+        active: true
+      });
+      renderBannerList(siteSettings.banners);
+      renderPreview(siteSettings);
+      showToast('Đã thêm banner mới vào danh sách. Hãy nhấn "Lưu Giao Diện" để cập nhật!');
+    }
+
+    function removeBannerItem(index) {
+      if (confirm('Bạn có chắc muốn xóa banner này?')) {
+        siteSettings.banners.splice(index, 1);
+        renderBannerList(siteSettings.banners);
+        renderPreview(siteSettings);
+      }
+    }
+
+    function renderPreview(settings) {
+      document.getElementById('preview-siteName').textContent = settings.siteName || 'LocalGo Vietnam';
+      document.getElementById('preview-hotline').textContent = settings.hotline || '1900 1177';
+      document.getElementById('preview-announcement').textContent = settings.headerAnnouncement || 'Ưu đãi hè 2026';
+      document.getElementById('preview-heroTitle').textContent = settings.heroTitle || 'Khám Phá Việt Nam';
+      document.getElementById('preview-heroSubtitle').textContent = settings.heroSubtitle || '';
+
+      const bannerBox = document.getElementById('preview-banner-cards');
+      if (settings.banners && settings.banners.length > 0) {
+        bannerBox.innerHTML = settings.banners.slice(0, 2).map(b => `
+          <div style="background:#FFF; border:1px solid var(--border); border-radius:6px; padding:8px; display:flex; gap:10px; align-items:center;">
+            <img src="${b.imageUrl}" style="width:50px; height:35px; border-radius:4px; object-fit:cover;" onerror="this.src='https://placehold.co/50x35'" />
+            <div>
+              <div style="font-size:12px; font-weight:700; color:var(--navy);">${b.title}</div>
+              <span class="badge badge-red" style="font-size:9px; padding:2px 6px;">${b.badge || 'TOUR'}</span>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    async function saveSiteSettings() {
+      const updated = {
+        siteName: document.getElementById('cms-siteName').value,
+        hotline: document.getElementById('cms-hotline').value,
+        supportEmail: document.getElementById('cms-supportEmail').value,
+        workingHours: document.getElementById('cms-workingHours').value,
+        companyAddress: document.getElementById('cms-companyAddress').value,
+        headerAnnouncement: document.getElementById('cms-announcement').value,
+        heroTitle: document.getElementById('cms-heroTitle').value,
+        heroSubtitle: document.getElementById('cms-heroSubtitle').value,
+        primaryColor: document.getElementById('cms-primaryColorText').value,
+        secondaryColor: document.getElementById('cms-secondaryColorText').value,
+        footerText: document.getElementById('cms-footerText').value,
+        banners: siteSettings ? siteSettings.banners : []
+      };
+
+      try {
+        const res = await fetch(`${API_BASE}/admin/settings`, {
+          method: 'PUT',
+          headers: AUTH_HEADER,
+          body: JSON.stringify(updated)
+        });
+        const json = await res.json();
+        if (json.success) {
+          siteSettings = json.data.settings;
+          renderPreview(siteSettings);
+          document.getElementById('topbar-hotline').textContent = siteSettings.hotline;
+          showToast('✅ Đã lưu cấu hình giao diện DulichViet thành công!');
+        } else {
+          showToast('Lỗi: ' + json.message, 'error');
+        }
+      } catch (err) {
+        showToast('Lỗi kết nối máy chủ: ' + err.message, 'error');
+      }
+    }
+
+    // PLACES
+    async function loadPlaces() {
+      const prov = document.getElementById('filter-province').value;
+      const url = prov ? `${API_BASE}/admin/places?province=${encodeURIComponent(prov)}&limit=50` : `${API_BASE}/admin/places?limit=50`;
+
+      try {
+        const res = await fetch(url, { headers: AUTH_HEADER });
+        const json = await res.json();
+        if (json.success) {
+          allPlaces = Array.isArray(json.data) ? json.data : (json.data?.items || []);
+          renderPlacesTable(allPlaces);
+          renderDashboardPlaces(allPlaces);
+        }
+      } catch (err) {
+        console.error('Error loading places:', err);
+      }
+    }
+
+    function renderPlacesTable(places) {
+      const tbody = document.querySelector('#places-table tbody');
+      if (!places.length) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:24px; color:#94A3B8;">Không có điểm đến nào phù hợp</td></tr>';
+        return;
+      }
+      tbody.innerHTML = places.map(p => `
+        <tr>
+          <td><img src="${p.coverImage || 'https://placehold.co/60x42'}" class="table-thumb" onerror="this.src='https://placehold.co/60x42'" /></td>
+          <td style="font-weight:700; color:var(--navy);">${p.name}</td>
+          <td>${p.province}</td>
+          <td><span class="badge badge-blue">${p.category || 'Du lịch'}</span></td>
+          <td style="font-weight:700; color:var(--primary);">${p.ticketPrice?.adult ? Number(p.ticketPrice.adult).toLocaleString() + ' đ' : 'Miễn phí'}</td>
+          <td>⭐ ${p.communityRating || 5.0}</td>
+          <td>
+            <span class="badge ${p.isVerified ? 'badge-green' : 'badge-gold'}">
+              ${p.isVerified ? '✅ Đã duyệt' : '⏳ Chờ duyệt'}
+            </span>
+          </td>
+          <td>
+            <div style="display:flex; gap:6px;">
+              <button class="btn btn-sm btn-outline" onclick="openEditPlaceModal('${p._id}')">✏️ Sửa</button>
+              <button class="btn btn-sm btn-danger" onclick="deletePlace('${p._id}')">🗑️</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function renderDashboardPlaces(places) {
+      const tbody = document.querySelector('#dashboard-places-table tbody');
+      if (!places.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:16px;">Chưa có dữ liệu</td></tr>';
+        return;
+      }
+      tbody.innerHTML = places.slice(0, 5).map(p => `
+        <tr>
+          <td><img src="${p.coverImage || 'https://placehold.co/60x42'}" class="table-thumb" /></td>
+          <td style="font-weight:700;">${p.name}</td>
+          <td>${p.province}</td>
+          <td><span class="badge badge-blue">${p.category || 'Tour'}</span></td>
+          <td>⭐ ${p.communityRating || 5.0}</td>
+          <td><span class="badge ${p.isVerified ? 'badge-green' : 'badge-gold'}">${p.isVerified ? 'Đã duyệt' : 'Mới'}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function filterPlaces() {
+      const q = document.getElementById('search-place-input').value.toLowerCase();
+      const filtered = allPlaces.filter(p => p.name.toLowerCase().includes(q) || (p.province && p.province.toLowerCase().includes(q)));
+      renderPlacesTable(filtered);
+    }
+
+    // ADD / EDIT PLACE MODAL
+    function openAddPlaceModal() {
+      document.getElementById('place-modal-title').textContent = '➕ Thêm Điểm Đến Du Lịch Mới';
+      document.getElementById('modal-place-id').value = '';
+      document.getElementById('modal-place-name').value = '';
+      document.getElementById('modal-place-province').value = '';
+      document.getElementById('modal-place-address').value = '';
+      document.getElementById('modal-place-price').value = '';
+      document.getElementById('modal-place-desc').value = '';
+      document.getElementById('place-modal').classList.add('active');
+    }
+
+    function openEditPlaceModal(id) {
+      const p = allPlaces.find(item => item._id === id);
+      if (!p) return;
+      document.getElementById('place-modal-title').textContent = '✏️ Chỉnh Sửa Điểm Đến / Tour';
+      document.getElementById('modal-place-id').value = p._id;
+      document.getElementById('modal-place-name').value = p.name || '';
+      document.getElementById('modal-place-province').value = p.province || '';
+      document.getElementById('modal-place-category').value = p.category || 'beach';
+      document.getElementById('modal-place-address').value = p.address || '';
+      document.getElementById('modal-place-price').value = p.ticketPrice?.adult || '';
+      document.getElementById('modal-place-image').value = p.coverImage || '';
+      document.getElementById('modal-place-desc').value = p.description || '';
+      document.getElementById('place-modal').classList.add('active');
+    }
+
+    function closePlaceModal() {
+      document.getElementById('place-modal').classList.remove('active');
+    }
+
+    async function handlePlaceSubmit(e) {
+      e.preventDefault();
+      const id = document.getElementById('modal-place-id').value;
+      const data = {
+        name: document.getElementById('modal-place-name').value,
+        province: document.getElementById('modal-place-province').value,
+        category: document.getElementById('modal-place-category').value,
+        address: document.getElementById('modal-place-address').value,
+        coverImage: document.getElementById('modal-place-image').value,
+        description: document.getElementById('modal-place-desc').value,
+        ticketPrice: {
+          adult: Number(document.getElementById('modal-place-price').value) || 0,
+          currency: 'VND'
+        },
+        location: {
+          type: 'Point',
+          coordinates: [106.7009, 10.7769] // default VN coords
+        }
+      };
+
+      try {
+        const url = id ? `${API_BASE}/admin/places/${id}` : `${API_BASE}/admin/places`;
+        const method = id ? 'PUT' : 'POST';
+        const res = await fetch(url, {
+          method,
+          headers: AUTH_HEADER,
+          body: JSON.stringify(data)
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast(id ? '✅ Đã cập nhật điểm đến thành công!' : '✅ Đã thêm điểm đến mới thành công!');
+          closePlaceModal();
+          loadPlaces();
+          loadDashboardStats();
+        } else {
+          showToast('Lỗi: ' + json.message, 'error');
+        }
+      } catch (err) {
+        showToast('Lỗi kết nối: ' + err.message, 'error');
+      }
+    }
+
+    async function deletePlace(id) {
+      if (!confirm('Bạn có chắc chắn muốn xóa điểm đến này khỏi hệ thống?')) return;
+      try {
+        const res = await fetch(`${API_BASE}/admin/places/${id}`, {
+          method: 'DELETE',
+          headers: AUTH_HEADER
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast('✅ Đã xóa điểm đến thành công');
+          loadPlaces();
+          loadDashboardStats();
+        }
+      } catch (err) {
+        showToast('Lỗi: ' + err.message, 'error');
+      }
+    }
+
+    // USERS
+    async function loadUsers() {
+      try {
+        const res = await fetch(`${API_BASE}/admin/users?limit=50`, { headers: AUTH_HEADER });
+        const json = await res.json();
+        if (json.success) {
+          allUsers = Array.isArray(json.data) ? json.data : (json.data?.items || []);
+          renderUsersTable(allUsers);
+        }
+      } catch (err) {
+        console.error('Error loading users:', err);
+      }
+    }
+
+    function renderUsersTable(users) {
+      const tbody = document.querySelector('#users-table tbody');
+      if (!users.length) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding:24px; color:#94A3B8;">Chưa có tài khoản nào</td></tr>';
+        return;
+      }
+      tbody.innerHTML = users.map(u => `
+        <tr>
+          <td style="font-weight:700;">${u.displayName || 'Khách Du Lịch'}</td>
+          <td>${u.email}</td>
+          <td>
+            <select class="form-control" style="width:110px; padding:4px 8px; font-size:12px;" onchange="changeUserRole('${u._id}', this.value)">
+              <option value="user" ${u.role === 'user' ? 'selected' : ''}>User</option>
+              <option value="business" ${u.role === 'business' ? 'selected' : ''}>Guide/Business</option>
+              <option value="admin" ${u.role === 'admin' ? 'selected' : ''}>Admin</option>
+            </select>
+          </td>
+          <td><span class="badge badge-gold">Cấp ${u.level || 1}</span></td>
+          <td style="font-weight:700;">${u.points || 0} pts</td>
+          <td><span class="badge ${u.isActive ? 'badge-green' : 'badge-red'}">${u.isActive ? 'Hoạt động' : 'Đã khóa'}</span></td>
+          <td>
+            <button class="btn btn-sm ${u.isActive ? 'btn-danger' : 'btn-outline'}" onclick="toggleUserStatus('${u._id}')">
+              ${u.isActive ? 'Khóa' : 'Kích hoạt'}
+            </button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function filterUsers() {
+      const q = document.getElementById('search-user-input').value.toLowerCase();
+      const filtered = allUsers.filter(u => (u.displayName && u.displayName.toLowerCase().includes(q)) || (u.email && u.email.toLowerCase().includes(q)));
+      renderUsersTable(filtered);
+    }
+
+    async function changeUserRole(id, role) {
+      try {
+        const res = await fetch(`${API_BASE}/admin/users/${id}/role`, {
+          method: 'PATCH',
+          headers: AUTH_HEADER,
+          body: JSON.stringify({ role })
+        });
+        const json = await res.json();
+        if (json.success) showToast(`✅ Đã đổi quyền thành công sang ${role}`);
+      } catch (err) {
+        showToast('Lỗi: ' + err.message, 'error');
+      }
+    }
+
+    async function toggleUserStatus(id) {
+      try {
+        const res = await fetch(`${API_BASE}/admin/users/${id}/status`, {
+          method: 'PATCH',
+          headers: AUTH_HEADER
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast('✅ Đã cập nhật trạng thái người dùng');
+          loadUsers();
+        }
+      } catch (err) {
+        showToast('Lỗi: ' + err.message, 'error');
+      }
+    }
+
+    // REVIEWS
+    async function loadReviews() {
+      try {
+        const res = await fetch(`${API_BASE}/admin/reviews?limit=50`, { headers: AUTH_HEADER });
+        const json = await res.json();
+        if (json.success) {
+          const reviews = Array.isArray(json.data) ? json.data : (json.data?.items || []);
+          renderReviewsTable(reviews);
+        }
+      } catch (err) {
+        console.error('Error loading reviews:', err);
+      }
+    }
+
+    function renderReviewsTable(reviews) {
+      const tbody = document.querySelector('#reviews-table tbody');
+      if (!reviews.length) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:24px; color:#94A3B8;">Chưa có nhận xét nào từ du khách</td></tr>';
+        return;
+      }
+      tbody.innerHTML = reviews.map(r => `
+        <tr>
+          <td style="font-weight:700;">${r.userId?.displayName || 'Du Khách'}</td>
+          <td>${r.placeId?.name || 'Điểm đến'}</td>
+          <td><span style="color:#FFB800; font-weight:800;">★ ${r.rating}</span></td>
+          <td style="max-width:300px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">${r.comment || '(Không có lời bình)'}</td>
+          <td>${new Date(r.createdAt).toLocaleDateString('vi-VN')}</td>
+          <td>
+            <button class="btn btn-sm btn-danger" onclick="deleteReview('${r._id}')">🗑️ Xóa</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    async function deleteReview(id) {
+      if (!confirm('Bạn có chắc muốn xóa đánh giá này?')) return;
+      try {
+        const res = await fetch(`${API_BASE}/admin/reviews/${id}`, {
+          method: 'DELETE',
+          headers: AUTH_HEADER
+        });
+        const json = await res.json();
+        if (json.success) {
+          showToast('✅ Đã xóa đánh giá vi phạm');
+          loadReviews();
+        }
+      } catch (err) {
+        showToast('Lỗi: ' + err.message, 'error');
+      }
+    }
+
+    // AI GEMINI 3.8
+    async function generateAIItinerary() {
+      const dest = document.getElementById('ai-destination').value;
+      const days = document.getElementById('ai-days').value;
+      const style = document.getElementById('ai-style').value;
+      const budget = document.getElementById('ai-budget').value;
+      const btn = document.getElementById('ai-generate-btn');
+      const box = document.getElementById('ai-result-box');
+
+      if (!dest) {
+        showToast('Vui lòng nhập điểm đến du lịch!', 'error');
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = '⏳ Đang kết nối Gemini 3.8 Flash xử lý...';
+      box.textContent = `🤖 Đang gửi yêu cầu tới mô hình Google Gemini 3.8 Flash...\nĐang tổng hợp điểm đến tại ${dest}, thời lượng ${days}, phong cách ${style}...`;
+
+      try {
+        const res = await fetch(`${API_BASE}/ai/generate-itinerary`, {
+          method: 'POST',
+          headers: AUTH_HEADER,
+          body: JSON.stringify({
+            province: dest,
+            days: parseInt(days) || 3,
+            interests: [style],
+            budget: budget
+          })
+        });
+        const json = await res.json();
+        if (json.success && json.data) {
+          const itinerary = json.data.itinerary;
+          let outputText = `🎉 LỊCH TRÌNH DU LỊCH ĐƯỢC TẠO BỞI GEMINI 3.8 FLASH\n`;
+          outputText += `--------------------------------------------------\n`;
+          outputText += `📍 Điểm Đến: ${itinerary.title || dest}\n`;
+          outputText += `⏱️ Thời Lượng: ${days}\n`;
+          outputText += `💰 Dự Toán: ${budget}\n`;
+          outputText += `💡 Tóm Tắt: ${itinerary.summary || ''}\n\n`;
+
+          if (itinerary.days && Array.isArray(itinerary.days)) {
+            itinerary.days.forEach((d, i) => {
+              outputText += `📅 NGÀY ${i+1}: ${d.title || d.theme || 'Khám phá'}\n`;
+              if (d.activities && Array.isArray(d.activities)) {
+                d.activities.forEach(a => {
+                  outputText += `   • ${a.time ? '[' + a.time + '] ' : ''}${a.activity || a.description || a.name}\n`;
+                });
+              }
+              outputText += `\n`;
+            });
+          } else if (typeof itinerary === 'string') {
+            outputText += itinerary;
+          }
+
+          box.textContent = outputText;
+          showToast('✅ Gemini 3.8 Flash đã hoàn tất tạo lịch trình du lịch!');
+        } else {
+          box.textContent = '⚠️ Phản hồi từ máy chủ: ' + (json.message || JSON.stringify(json));
+          showToast('Thông báo: ' + (json.message || 'Chưa nhận được lịch trình'), 'error');
+        }
+      } catch (err) {
+        box.textContent = '❌ Lỗi kết nối API AI: ' + err.message;
+        showToast('Lỗi API: ' + err.message, 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = '🚀 Tạo Lịch Trình Ngay Với Gemini 3.8';
+      }
+    }
+  </script>
+</body>
+</html>

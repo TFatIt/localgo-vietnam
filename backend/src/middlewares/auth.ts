@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { admin } from '../config/firebase';
+import { config } from '../config';
 import { User } from '../models/User';
 import { UnauthorizedError, ForbiddenError } from '../utils/errors';
 import { asyncHandler } from '../utils/helpers';

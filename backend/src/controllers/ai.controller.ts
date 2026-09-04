@@ -5,33 +5,27 @@ import { asyncHandler, sendSuccess } from '../utils/helpers';
 import { ValidationError } from '../utils/errors';
 
 export const generateTravelPlan = asyncHandler(async (req: AuthRequest, res: Response) => {
+  const body = req.body as Record<string, any>;
+  const destination = body.destination || body.province || 'Hà Nội';
+  const numberOfDays = Number(body.numberOfDays || body.days) || 3;
+  let rawBudget = body.budget;
+  let budget = 3000000;
+  if (typeof rawBudget === 'number') budget = rawBudget;
+  else if (typeof rawBudget === 'string') {
+    if (rawBudget.includes('Tiết kiệm')) budget = 2000000;
+    else if (rawBudget.includes('Cao cấp')) budget = 8000000;
+    else if (Number(rawBudget)) budget = Number(rawBudget);
+  }
+
   const {
-    destination,
     currentLocation,
-    numberOfDays,
-    budget,
     currency,
     transportation,
     travelStyle,
     companions,
     foodPreference,
     specialRequests,
-  } = req.body as {
-    destination: string;
-    currentLocation?: string;
-    numberOfDays: number;
-    budget: number;
-    currency?: string;
-    transportation: string[];
-    travelStyle: string;
-    companions: string;
-    foodPreference: string[];
-    specialRequests?: string;
-  };
-
-  if (!destination || !numberOfDays || !budget) {
-    throw new ValidationError('destination, numberOfDays, and budget are required');
-  }
+  } = body;
 
   const itinerary = await aiService.generateTravelPlan({
     userId: req.user?._id || 'guest_user',
@@ -39,12 +33,11 @@ export const generateTravelPlan = asyncHandler(async (req: AuthRequest, res: Res
     currentLocation,
     numberOfDays,
     budget,
-    currency,
-    transportation: transportation || [],
+    currency: currency || 'VND',
+    transportation: transportation || ['xe_khach'],
     travelStyle: travelStyle || 'moderate',
     companions: companions || 'solo',
-    foodPreference: foodPreference || [],
-    specialRequests,
+    foodPreference: foodPreference || ['dac_san'],
   });
 
   sendSuccess(res, { itinerary }, 'Travel plan generated', 201);
