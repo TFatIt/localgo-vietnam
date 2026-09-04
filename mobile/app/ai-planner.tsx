@@ -64,12 +64,16 @@ export default function AIPlannerScreen() {
       transportation: selectedTransport,
       foodPreference: selectedFood,
     }),
+    retry: false, // Không tự động retry - tránh spam 429 Rate Limit
     onSuccess: (res) => {
-      setResult(res.data?.itinerary);
+      // places.service.ts đã unwrap .data, nên res chính là response body
+      const itinerary = res?.itinerary ?? res?.data?.itinerary;
+      setResult(itinerary);
       setStep(3);
     },
-    onError: () => {
-      Alert.alert('Lỗi', 'Không thể tạo kế hoạch. Vui lòng thử lại.');
+    onError: (error: any) => {
+      const msg = error?.response?.data?.message || 'Không thể tạo kế hoạch. Vui lòng thử lại.';
+      Alert.alert('Không thể tạo kế hoạch', msg);
     },
   });
 
@@ -195,7 +199,17 @@ export default function AIPlannerScreen() {
               />
             </View>
 
-            <TouchableOpacity style={styles.nextBtn} onPress={() => setStep(2)}>
+            <TouchableOpacity
+              style={styles.nextBtn}
+              onPress={() => {
+                const dest = watch('destination');
+                if (!dest || dest.trim() === '') {
+                  Alert.alert('Thiếu thông tin', 'Vui lòng nhập điểm đến trước khi tiếp tục.');
+                  return;
+                }
+                setStep(2);
+              }}
+            >
               <LinearGradient colors={[Colors.primary, Colors.primaryDark]} style={styles.nextBtnGradient}>
                 <Text style={styles.nextBtnText}>Tiếp theo →</Text>
               </LinearGradient>
