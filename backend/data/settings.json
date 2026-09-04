@@ -1,11 +1,11 @@
 {
   "siteName": "LocalGo Vietnam - Du Lịch Việt CMS",
-  "hotline": "1900 1177",
+  "hotline": "0334644788",
   "supportEmail": "info@dulichviet.com.vn",
   "companyAddress": "217 Pasteur, Phường Võ Thị Sáu, Quận 3, TP. Hồ Chí Minh",
   "workingHours": "08:00 - 18:00 (Thứ 2 - Thứ 7)",
   "headerAnnouncement": "🔥 KHUYẾN MÃI ĐẶC BIỆT: Tour Du Lịch Hè Giảm 35%",
-  "primaryColor": "#E8302A",
+  "primaryColor": "#c3403c",
   "secondaryColor": "#FFB800",
   "heroTitle": "Hành Trình Khám Phá Việt Nam Rạng Rỡ",
   "heroSubtitle": "Hơn 500+ điểm đến, tour trọn gói và lịch trình thông minh cùng Trợ lý AI Gemini 3.8",
@@ -53,5 +53,5 @@
     "tiktok": "https://tiktok.com",
     "zalo": "https://zalo.me"
   },
-  "updatedAt": "2026-09-04T08:56:49.286Z"
+  "updatedAt": "2026-09-04T09:15:32.803Z"
 }

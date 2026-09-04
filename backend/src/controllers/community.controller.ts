@@ -4,14 +4,69 @@ import { Post } from '../models/Post';
 import { Comment } from '../models/Comment';
 import { Like } from '../models/Engagement';
 import { User } from '../models/User';
+import { isDbConnected } from '../config/database';
 import { asyncHandler, sendSuccess, sendPaginated } from '../utils/helpers';
 import { NotFoundError, ForbiddenError } from '../utils/errors';
+
+const MOCK_COMMUNITY_POSTS = [
+  {
+    _id: 'mock_post_1',
+    userId: {
+      _id: 'user_mock_1',
+      displayName: 'Lê Minh Tuấn',
+      avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+      level: 3,
+    },
+    placeId: {
+      _id: '65e000000000000000000001',
+      name: 'Vịnh Hạ Long',
+      province: 'Quảng Ninh',
+      coverImage: 'https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=1000&auto=format&fit=crop',
+    },
+    type: 'photo',
+    content: 'Chuyến đi Vịnh Hạ Long tuyệt vời trên du thuyền 5 sao cùng gia đình! Cảnh sắc Việt Nam mình đẹp ngỡ ngàng.',
+    media: ['https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=1000&auto=format&fit=crop'],
+    thumbnail: 'https://images.unsplash.com/photo-1528127269322-539801943592?q=80&w=1000&auto=format&fit=crop',
+    likesCount: 142,
+    commentsCount: 18,
+    isLiked: false,
+    createdAt: new Date().toISOString(),
+  },
+  {
+    _id: 'mock_post_2',
+    userId: {
+      _id: 'user_mock_2',
+      displayName: 'Nguyễn Thảo Nhi',
+      avatar: 'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=150',
+      level: 5,
+    },
+    placeId: {
+      _id: '65e000000000000000000002',
+      name: 'Phố Cổ Hội An',
+      province: 'Quảng Nam',
+      coverImage: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?q=80&w=1000&auto=format&fit=crop',
+    },
+    type: 'photo',
+    content: 'Đêm phố cổ Hội An lung linh đèn lồng. Đồ ăn vặt ở đây siêu ngon và người dân cực kỳ thân thiện! ❤️',
+    media: ['https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?q=80&w=1000&auto=format&fit=crop'],
+    thumbnail: 'https://images.unsplash.com/photo-1559592413-7cec4d0cae2b?q=80&w=1000&auto=format&fit=crop',
+    likesCount: 285,
+    commentsCount: 34,
+    isLiked: false,
+    createdAt: new Date(Date.now() - 3600000 * 2).toISOString(),
+  },
+];
 
 // --- Posts ---
 export const getFeed = asyncHandler(async (req: AuthRequest, res: Response) => {
   const { page = '1', limit = '15', type } = req.query as Record<string, string>;
   const p = parseInt(page);
   const l = Math.min(parseInt(limit), 30);
+
+  if (!isDbConnected) {
+    sendPaginated(res, MOCK_COMMUNITY_POSTS, MOCK_COMMUNITY_POSTS.length, p, l);
+    return;
+  }
 
   const filter: Record<string, unknown> = { isActive: true, isPublic: true };
   if (type) filter.type = type;

@@ -12,6 +12,10 @@ import {
   Animated,
   Platform,
   Linking,
+  Modal,
+  TextInput,
+  ActivityIndicator,
+  Alert,
 } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { router } from 'expo-router';
@@ -21,12 +25,12 @@ import { placesService } from '../../services/places.service';
 import { settingsService, SiteSettings, DEFAULT_FALLBACK_SETTINGS } from '../../services/settings.service';
 import { Colors, Typography, Spacing, BorderRadius, Shadows, CategoryConfig } from '../../constants/theme';
 import { useAuthStore } from '../../store/authStore';
+import api from '../../services/api';
 
 const { width } = Dimensions.get('window');
 const isLargeScreen = width > 768;
 const BANNER_WIDTH = isLargeScreen ? Math.min(width * 0.9, 1100) : width - Spacing.base * 2;
 const CARD_WIDTH = isLargeScreen ? 340 : width * 0.75;
-const CARD_HEIGHT = 240;
 
 const CATEGORIES = [
   { key: 'all', label: 'Tất Cả Tour', emoji: '🌟', color: '#E8302A' },
@@ -47,8 +51,18 @@ const StarRating = ({ rating }: { rating: number }) => (
 
 export default function HomeScreen() {
   const scrollY = useRef(new Animated.Value(0)).current;
-  const { user } = useAuthStore();
+  const { user, setUser, setToken, logout } = useAuthStore();
   const [activeBannerIdx, setActiveBannerIdx] = useState(0);
+
+  // Auth Modal State
+  const [authModalVisible, setAuthModalVisible] = useState(false);
+  const [authMode, setAuthMode] = useState<'login' | 'register'>('login');
+  const [authEmail, setAuthEmail] = useState('');
+  const [authPassword, setAuthPassword] = useState('');
+  const [authName, setAuthName] = useState('');
+  const [authPhone, setAuthPhone] = useState('');
+  const [authLoading, setAuthLoading] = useState(false);
+  const [authError, setAuthError] = useState('');
 
   // Settings from CMS backend
   const { data: settings = DEFAULT_FALLBACK_SETTINGS, refetch: refetchSettings } = useQuery({
@@ -98,6 +112,77 @@ export default function HomeScreen() {
     }
   };
 
+  const openAuth = (mode: 'login' | 'register') => {
+    setAuthMode(mode);
+    setAuthError('');
+    setAuthModalVisible(true);
+  };
+
+  const handleAuthSubmit = async () => {
+    setAuthError('');
+    if (!authEmail.trim() || !authPassword.trim()) {
+      setAuthError('Vui lòng nhập đầy đủ Email và Mật khẩu.');
+      return;
+    }
+
+    if (authMode === 'register' && !authName.trim()) {
+      setAuthError('Vui lòng nhập họ và tên của bạn.');
+      return;
+    }
+
+    if (authPassword.length < 6) {
+      setAuthError('Mật khẩu phải chứa ít nhất 6 ký tự.');
+      return;
+    }
+
+    setAuthLoading(true);
+    try {
+      const endpoint = authMode === 'register' ? '/auth/register' : '/auth/login';
+      const payload = authMode === 'register'
+        ? { email: authEmail.trim(), password: authPassword.trim(), displayName: authName.trim(), phone: authPhone.trim() }
+        : { email: authEmail.trim(), password: authPassword.trim() };
+
+      const response = await api.post(endpoint, payload);
+      const resData = response.data?.data;
+      const userData = resData?.user || response.data?.user;
+      const token = resData?.token || response.data?.token;
+
+      if (userData) {
+        setUser(userData);
+        if (token) setToken(token);
+        setAuthModalVisible(false);
+        Alert.alert('Thành công', authMode === 'register' ? 'Đăng ký tài khoản thành công!' : 'Đăng nhập thành công!');
+      } else {
+        // Fallback user
+        setUser({
+          _id: 'dev_' + Date.now(),
+          firebaseUid: 'dev_uid_' + Date.now(),
+          email: authEmail.trim(),
+          displayName: authName.trim() || authEmail.split('@')[0],
+          role: 'user',
+          travelInterests: ['beach', 'food'],
+          points: 150,
+          xp: 300,
+          level: 1,
+          followersCount: 0,
+          followingCount: 0,
+          postsCount: 0,
+          visitedProvincesCount: 1,
+          language: 'vi',
+          theme: 'light',
+          notificationsEnabled: true,
+          badges: [],
+        });
+        setAuthModalVisible(false);
+      }
+    } catch (err: any) {
+      const msg = err.response?.data?.message || err.message || 'Đăng nhập thất bại. Vui lòng thử lại.';
+      setAuthError(msg);
+    } finally {
+      setAuthLoading(false);
+    }
+  };
+
   return (
     <View style={styles.container}>
       <StatusBar style="dark" />
@@ -123,7 +208,7 @@ export default function HomeScreen() {
 
         <View style={styles.headerRightActions}>
           <View style={styles.hotlinePill}>
-            <Text style={styles.hotlineText}>📞 CSKH: {settings.hotline || '1900 1177'}</Text>
+            <Text style={styles.hotlineText}>📞 {settings.hotline || '1900 1177'}</Text>
           </View>
           <TouchableOpacity
             style={styles.adminCmsBtn}
@@ -132,6 +217,43 @@ export default function HomeScreen() {
           >
             <Text style={styles.adminCmsBtnText}>⚙️ Quản Trị CMS</Text>
           </TouchableOpacity>
+
+          {/* LOGIN / REGISTER BUTTONS OR USER INFO */}
+          {user ? (
+            <View style={styles.userBox}>
+              <View style={styles.userAvatarBadge}>
+                <Text style={styles.userAvatarText}>
+                  {(user.displayName || 'DK')[0].toUpperCase()}
+                </Text>
+              </View>
+              <View>
+                <Text style={styles.userName} numberOfLines={1}>
+                  {user.displayName?.split(' ')[0] || 'Du Khách'}
+                </Text>
+                <Text style={styles.userPoints}>⭐ {user.points || 100} pts</Text>
+              </View>
+              <TouchableOpacity style={styles.logoutBtn} onPress={logout}>
+                <Text style={styles.logoutText}>Đăng xuất</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.authBtnGroup}>
+              <TouchableOpacity
+                style={styles.loginBtn}
+                onPress={() => openAuth('login')}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.loginBtnText}>👤 Đăng Nhập</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.registerBtn}
+                onPress={() => openAuth('register')}
+                activeOpacity={0.85}
+              >
+                <Text style={styles.registerBtnText}>✨ Đăng Ký</Text>
+              </TouchableOpacity>
+            </View>
+          )}
         </View>
       </View>
 
@@ -230,7 +352,7 @@ export default function HomeScreen() {
           <View style={styles.trustDivider} />
           <View style={styles.trustItem}>
             <Text style={styles.trustIcon}>📞</Text>
-            <Text style={styles.trustTitle}>Hỗ Trợ 24/7 (1900 1177)</Text>
+            <Text style={styles.trustTitle}>Hỗ Trợ 24/7 ({settings.hotline || '1900 1177'})</Text>
           </View>
           <View style={styles.trustDivider} />
           <View style={styles.trustItem}>
@@ -294,10 +416,10 @@ export default function HomeScreen() {
         {/* TRENDING VIETNAM TOURS & DESTINATIONS */}
         <View style={styles.section}>
           <View style={styles.sectionHeaderRow}>
-            <div>
+            <View>
               <Text style={styles.sectionHeaderTitle}>🔥 Tour & Điểm Đến Bán Chạy Nhất</Text>
               <Text style={styles.sectionSubTitle}>Các địa danh được du khách săn đón nhiều nhất trong mùa hè này</Text>
-            </div>
+            </View>
             <TouchableOpacity onPress={() => router.push('/(tabs)/search?isTrending=true')}>
               <Text style={styles.viewAllText}>Xem tất cả tour →</Text>
             </TouchableOpacity>
@@ -365,10 +487,10 @@ export default function HomeScreen() {
         {/* HIDDEN GEMS SECTION */}
         <View style={styles.section}>
           <View style={styles.sectionHeaderRow}>
-            <div>
+            <View>
               <Text style={styles.sectionHeaderTitle}>💎 Trải Nghiệm Khám Phá Độc Bản</Text>
               <Text style={styles.sectionSubTitle}>Điểm đến hoang sơ, thiên nhiên kỳ vĩ dành cho người thích khám phá</Text>
-            </div>
+            </View>
             <TouchableOpacity onPress={() => router.push('/(tabs)/search?isHiddenGem=true')}>
               <Text style={styles.viewAllText}>Khám phá thêm →</Text>
             </TouchableOpacity>
@@ -422,6 +544,150 @@ export default function HomeScreen() {
 
         <View style={{ height: 90 }} />
       </ScrollView>
+
+      {/* MODAL: ĐĂNG NHẬP / ĐĂNG KÝ (DULICHVIET MODAL) */}
+      <Modal
+        visible={authModalVisible}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setAuthModalVisible(false)}
+      >
+        <View style={styles.modalBackdrop}>
+          <View style={styles.modalCard}>
+            {/* Modal Header */}
+            <View style={styles.modalHeader}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+                <Text style={{ fontSize: 22 }}>🇻🇳</Text>
+                <Text style={styles.modalHeaderTitle}>
+                  {authMode === 'login' ? 'Đăng Nhập Du Lịch Việt' : 'Đăng Ký Thành Viên'}
+                </Text>
+              </View>
+              <TouchableOpacity
+                style={styles.modalCloseBtn}
+                onPress={() => setAuthModalVisible(false)}
+              >
+                <Text style={{ fontSize: 18, color: '#64748B', fontWeight: '800' }}>✕</Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Mode Switch Tabs */}
+            <View style={styles.modalTabs}>
+              <TouchableOpacity
+                style={[styles.modalTab, authMode === 'login' && styles.modalTabActive]}
+                onPress={() => { setAuthMode('login'); setAuthError(''); }}
+              >
+                <Text style={[styles.modalTabText, authMode === 'login' && styles.modalTabTextActive]}>
+                  Đăng Nhập
+                </Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.modalTab, authMode === 'register' && styles.modalTabActive]}
+                onPress={() => { setAuthMode('register'); setAuthError(''); }}
+              >
+                <Text style={[styles.modalTabText, authMode === 'register' && styles.modalTabTextActive]}>
+                  Đăng Ký
+                </Text>
+              </TouchableOpacity>
+            </View>
+
+            {/* Error message */}
+            {authError ? (
+              <View style={styles.errorBox}>
+                <Text style={styles.errorText}>⚠️ {authError}</Text>
+              </View>
+            ) : null}
+
+            {/* Form inputs */}
+            <ScrollView style={{ maxHeight: 360 }} showsVerticalScrollIndicator={false}>
+              {authMode === 'register' && (
+                <View style={styles.modalInputGroup}>
+                  <Text style={styles.modalInputLabel}>Họ và tên (*)</Text>
+                  <TextInput
+                    style={styles.modalInput}
+                    placeholder="VD: Nguyễn Văn An"
+                    placeholderTextColor="#94A3B8"
+                    value={authName}
+                    onChangeText={setAuthName}
+                  />
+                </View>
+              )}
+
+              <View style={styles.modalInputGroup}>
+                <Text style={styles.modalInputLabel}>Email (*)</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder="VD: an.nguyen@gmail.com"
+                  placeholderTextColor="#94A3B8"
+                  value={authEmail}
+                  onChangeText={setAuthEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                />
+              </View>
+
+              {authMode === 'register' && (
+                <View style={styles.modalInputGroup}>
+                  <Text style={styles.modalInputLabel}>Số điện thoại</Text>
+                  <TextInput
+                    style={styles.modalInput}
+                    placeholder="VD: 0912 345 678"
+                    placeholderTextColor="#94A3B8"
+                    value={authPhone}
+                    onChangeText={setAuthPhone}
+                    keyboardType="phone-pad"
+                  />
+                </View>
+              )}
+
+              <View style={styles.modalInputGroup}>
+                <Text style={styles.modalInputLabel}>Mật khẩu (*)</Text>
+                <TextInput
+                  style={styles.modalInput}
+                  placeholder="•••••••• (Ít nhất 6 ký tự)"
+                  placeholderTextColor="#94A3B8"
+                  value={authPassword}
+                  onChangeText={setAuthPassword}
+                  secureTextEntry
+                />
+              </View>
+
+              {/* Submit Button */}
+              <TouchableOpacity
+                style={styles.modalSubmitBtn}
+                onPress={handleAuthSubmit}
+                disabled={authLoading}
+                activeOpacity={0.85}
+              >
+                {authLoading ? (
+                  <ActivityIndicator color="#FFF" />
+                ) : (
+                  <Text style={styles.modalSubmitBtnText}>
+                    {authMode === 'login' ? 'ĐĂNG NHẬP NGAY' : 'ĐĂNG KÝ TÀI KHOẢN'}
+                  </Text>
+                )}
+              </TouchableOpacity>
+
+              {/* Toggle Mode */}
+              <TouchableOpacity
+                style={styles.modalToggleBtn}
+                onPress={() => {
+                  setAuthMode(authMode === 'login' ? 'register' : 'login');
+                  setAuthError('');
+                }}
+              >
+                <Text style={styles.modalToggleText}>
+                  {authMode === 'login'
+                    ? 'Chưa có tài khoản? '
+                    : 'Đã có tài khoản? '}
+                  <Text style={{ color: '#E8302A', fontWeight: '800' }}>
+                    {authMode === 'login' ? 'Đăng ký miễn phí' : 'Đăng nhập ngay'}
+                  </Text>
+                </Text>
+              </TouchableOpacity>
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -555,6 +821,90 @@ const styles = StyleSheet.create({
     color: '#FFF',
     fontSize: 11,
     fontWeight: '700',
+  },
+
+  /* USER LOGGED IN */
+  userBox: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#F8FAFC',
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 20,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+  },
+  userAvatarBadge: {
+    width: 26,
+    height: 26,
+    borderRadius: 13,
+    backgroundColor: '#FFB800',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  userAvatarText: {
+    color: '#0D1B2E',
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  userName: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: '#0D1B2E',
+  },
+  userPoints: {
+    fontSize: 10,
+    color: '#E8302A',
+    fontWeight: '700',
+  },
+  logoutBtn: {
+    marginLeft: 4,
+    backgroundColor: '#FEE2E2',
+    paddingHorizontal: 6,
+    paddingVertical: 3,
+    borderRadius: 4,
+  },
+  logoutText: {
+    color: '#DC2626',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+
+  /* AUTH BUTTONS */
+  authBtnGroup: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  loginBtn: {
+    backgroundColor: '#FFF5F5',
+    borderWidth: 1,
+    borderColor: '#E8302A',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+  },
+  loginBtnText: {
+    color: '#E8302A',
+    fontSize: 11,
+    fontWeight: '800',
+  },
+  registerBtn: {
+    backgroundColor: '#E8302A',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 8,
+    shadowColor: '#E8302A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  registerBtnText: {
+    color: '#FFF',
+    fontSize: 11,
+    fontWeight: '800',
   },
 
   /* BANNER SLIDER */
@@ -951,5 +1301,129 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 18,
     alignItems: 'center',
+  },
+
+  /* AUTH MODAL */
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(13, 27, 46, 0.65)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  modalCard: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: 24,
+    width: '100%',
+    maxWidth: 440,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.2,
+    shadowRadius: 24,
+    elevation: 8,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  modalHeaderTitle: {
+    fontSize: 17,
+    fontWeight: '800',
+    color: '#0D1B2E',
+  },
+  modalCloseBtn: {
+    padding: 4,
+  },
+  modalTabs: {
+    flexDirection: 'row',
+    backgroundColor: '#F1F5F9',
+    borderRadius: 8,
+    padding: 3,
+    marginBottom: 16,
+  },
+  modalTab: {
+    flex: 1,
+    paddingVertical: 8,
+    alignItems: 'center',
+    borderRadius: 6,
+  },
+  modalTabActive: {
+    backgroundColor: '#E8302A',
+    shadowColor: '#E8302A',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  modalTabText: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: '#64748B',
+  },
+  modalTabTextActive: {
+    color: '#FFFFFF',
+  },
+  errorBox: {
+    backgroundColor: '#FEF2F2',
+    borderWidth: 1,
+    borderColor: '#FEE2E2',
+    padding: 10,
+    borderRadius: 8,
+    marginBottom: 12,
+  },
+  errorText: {
+    color: '#DC2626',
+    fontSize: 12,
+    fontWeight: '600',
+  },
+  modalInputGroup: {
+    marginBottom: 12,
+  },
+  modalInputLabel: {
+    fontSize: 11,
+    fontWeight: '700',
+    color: '#0D1B2E',
+    marginBottom: 4,
+    textTransform: 'uppercase',
+  },
+  modalInput: {
+    backgroundColor: '#F8FAFC',
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: '#0D1B2E',
+  },
+  modalSubmitBtn: {
+    backgroundColor: '#E8302A',
+    borderRadius: 8,
+    paddingVertical: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 8,
+    shadowColor: '#E8302A',
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  modalSubmitBtnText: {
+    color: '#FFF',
+    fontSize: 13,
+    fontWeight: '800',
+    letterSpacing: 0.5,
+  },
+  modalToggleBtn: {
+    alignItems: 'center',
+    paddingVertical: 12,
+  },
+  modalToggleText: {
+    fontSize: 12,
+    color: '#64748B',
   },
 });

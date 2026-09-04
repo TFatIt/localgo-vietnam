@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import {
   verifyAndLogin,
+  registerWithEmail,
   getMe,
   updateProfile,
   updateFcmToken,
@@ -13,6 +14,7 @@ import { uploadImage } from '../middlewares/upload';
 const router = Router();
 
 // Public
+router.post('/register', authRateLimiter, registerWithEmail);
 router.post('/login', authRateLimiter, verifyAndLogin);
 
 // Protected

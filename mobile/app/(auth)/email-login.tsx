@@ -23,6 +23,7 @@ export default function EmailLoginScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [name, setName] = useState('');
+  const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
   const { setUser } = useAuthStore();
 
@@ -37,18 +38,27 @@ export default function EmailLoginScreen() {
       return;
     }
 
+    if (password.length < 6) {
+      Alert.alert('Thông báo', 'Mật khẩu phải có ít nhất 6 ký tự.');
+      return;
+    }
+
     setLoading(true);
     try {
       const endpoint = isRegister ? '/auth/register' : '/auth/login';
       const payload = isRegister
-        ? { email: email.trim(), password: password.trim(), displayName: name.trim() }
+        ? { email: email.trim(), password: password.trim(), displayName: name.trim(), phone: phone.trim() }
         : { email: email.trim(), password: password.trim() };
 
       const response = await api.post(endpoint, payload);
-      if (response.data?.user) {
-        setUser(response.data.user);
+      const userData = response.data?.data?.user || response.data?.user;
+
+      if (userData) {
+        setUser(userData);
+        Alert.alert('Thành công', isRegister ? 'Đăng ký tài khoản thành công!' : 'Đăng nhập thành công!');
+        router.replace('/(tabs)');
       } else {
-        // Fallback for dev mode
+        // Fallback user
         setUser({
           _id: 'dev_user_1',
           firebaseUid: 'dev_uid_1',
@@ -64,217 +74,251 @@ export default function EmailLoginScreen() {
           postsCount: 0,
           visitedProvincesCount: 1,
           language: 'vi',
-          theme: 'dark',
+          theme: 'light',
           notificationsEnabled: true,
           badges: [],
         });
+        router.replace('/(tabs)');
       }
-      router.replace('/(tabs)');
     } catch (error: any) {
-      // If server unreachable or error, allow offline dev login option
       const errorMsg = error.response?.data?.message || error.message || 'Không thể kết nối đến máy chủ.';
-      Alert.alert(
-        'Đăng nhập thử nghiệm',
-        `${errorMsg}\n\nBạn có muốn đăng nhập ở chế độ thử nghiệm nội bộ không?`,
-        [
-          { text: 'Thử lại', style: 'cancel' },
-          {
-            text: 'Tiếp tục',
-            onPress: () => {
-              setUser({
-                _id: 'dev_user_mock',
-                firebaseUid: 'mock_uid',
-                email: email.trim(),
-                displayName: name.trim() || email.split('@')[0],
-                role: 'user',
-                travelInterests: ['beach', 'mountain', 'food'],
-                points: 200,
-                xp: 500,
-                level: 2,
-                followersCount: 12,
-                followingCount: 8,
-                postsCount: 3,
-                visitedProvincesCount: 4,
-                language: 'vi',
-                theme: 'dark',
-                notificationsEnabled: true,
-                badges: [],
-              });
-              router.replace('/(tabs)');
-            },
-          },
-        ],
-      );
+      Alert.alert('Thông báo', errorMsg);
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <LinearGradient colors={['#0A0E1A', '#111827', '#0D1B2E']} style={styles.container}>
-      <StatusBar style="light" />
+    <View style={styles.container}>
+      <StatusBar style="dark" />
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{ flex: 1 }}
       >
         <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
           <TouchableOpacity style={styles.backButton} onPress={() => router.back()}>
-            <Text style={styles.backButtonText}>← Quay lại</Text>
+            <Text style={styles.backButtonText}>← Quay lại trang chủ</Text>
           </TouchableOpacity>
 
-          <View style={styles.header}>
-            <Text style={styles.title}>{isRegister ? 'Tạo tài khoản' : 'Chào mừng trở lại'}</Text>
-            <Text style={styles.subtitle}>
-              {isRegister
-                ? 'Đăng ký để lưu lịch trình và chia sẻ kinh nghiệm'
-                : 'Nhập thông tin tài khoản của bạn để tiếp tục'}
-            </Text>
-          </View>
+          <View style={styles.cardBox}>
+            <View style={styles.header}>
+              <View style={styles.flagBadge}>
+                <Text style={{ fontSize: 32 }}>🇻🇳</Text>
+              </View>
+              <Text style={styles.title}>
+                {isRegister ? 'Đăng Ký Thành Viên' : 'Đăng Nhập Du Lịch Việt'}
+              </Text>
+              <Text style={styles.subtitle}>
+                {isRegister
+                  ? 'Tạo tài khoản để nhận ưu đãi tour hè và tích lũy điểm thưởng'
+                  : 'Nhập thông tin tài khoản của bạn để khám phá Việt Nam'}
+              </Text>
+            </View>
 
-          <View style={styles.form}>
-            {isRegister && (
+            <View style={styles.form}>
+              {isRegister && (
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Họ và tên (*)</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="VD: Nguyễn Văn An"
+                    placeholderTextColor="#94A3B8"
+                    value={name}
+                    onChangeText={setName}
+                    autoCapitalize="words"
+                  />
+                </View>
+              )}
+
               <View style={styles.inputGroup}>
-                <Text style={styles.label}>Họ và tên</Text>
+                <Text style={styles.label}>Email (*)</Text>
                 <TextInput
                   style={styles.input}
-                  placeholder="Nguyễn Văn A"
-                  placeholderTextColor={Colors.textTertiary}
-                  value={name}
-                  onChangeText={setName}
-                  autoCapitalize="words"
+                  placeholder="VD: an.nguyen@gmail.com"
+                  placeholderTextColor="#94A3B8"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
                 />
               </View>
-            )}
 
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Email</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="example@localgo.vn"
-                placeholderTextColor={Colors.textTertiary}
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-              />
-            </View>
-
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Mật khẩu</Text>
-              <TextInput
-                style={styles.input}
-                placeholder="••••••••"
-                placeholderTextColor={Colors.textTertiary}
-                value={password}
-                onChangeText={setPassword}
-                secureTextEntry
-              />
-            </View>
-
-            <TouchableOpacity
-              style={styles.submitButton}
-              onPress={handleSubmit}
-              disabled={loading}
-              activeOpacity={0.8}
-            >
-              {loading ? (
-                <ActivityIndicator color="#FFFFFF" />
-              ) : (
-                <Text style={styles.submitButtonText}>
-                  {isRegister ? 'Đăng ký ngay' : 'Đăng nhập'}
-                </Text>
+              {isRegister && (
+                <View style={styles.inputGroup}>
+                  <Text style={styles.label}>Số điện thoại (tùy chọn)</Text>
+                  <TextInput
+                    style={styles.input}
+                    placeholder="VD: 0912 345 678"
+                    placeholderTextColor="#94A3B8"
+                    value={phone}
+                    onChangeText={setPhone}
+                    keyboardType="phone-pad"
+                  />
+                </View>
               )}
-            </TouchableOpacity>
 
-            <TouchableOpacity
-              style={styles.switchButton}
-              onPress={() => setIsRegister(!isRegister)}
-            >
-              <Text style={styles.switchText}>
-                {isRegister ? 'Đã có tài khoản? ' : 'Chưa có tài khoản? '}
-                <Text style={styles.switchLink}>
-                  {isRegister ? 'Đăng nhập' : 'Đăng ký ngay'}
+              <View style={styles.inputGroup}>
+                <Text style={styles.label}>Mật khẩu (*)</Text>
+                <TextInput
+                  style={styles.input}
+                  placeholder="•••••••• (Ít nhất 6 ký tự)"
+                  placeholderTextColor="#94A3B8"
+                  value={password}
+                  onChangeText={setPassword}
+                  secureTextEntry
+                />
+              </View>
+
+              <TouchableOpacity
+                style={styles.submitButton}
+                onPress={handleSubmit}
+                disabled={loading}
+                activeOpacity={0.85}
+              >
+                {loading ? (
+                  <ActivityIndicator color="#FFFFFF" />
+                ) : (
+                  <Text style={styles.submitButtonText}>
+                    {isRegister ? 'ĐĂNG KÝ TÀI KHOẢN NGAY' : 'ĐĂNG NHẬP NGAY'}
+                  </Text>
+                )}
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.switchButton}
+                onPress={() => setIsRegister(!isRegister)}
+              >
+                <Text style={styles.switchText}>
+                  {isRegister ? 'Đã có tài khoản? ' : 'Chưa có tài khoản? '}
+                  <Text style={styles.switchLink}>
+                    {isRegister ? 'Đăng nhập ngay' : 'Đăng ký ngay'}
+                  </Text>
                 </Text>
-              </Text>
-            </TouchableOpacity>
+              </TouchableOpacity>
+            </View>
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
-    </LinearGradient>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1 },
+  container: {
+    flex: 1,
+    backgroundColor: '#F4F6F9',
+  },
   scroll: {
-    padding: Spacing.xl,
-    paddingTop: Platform.OS === 'ios' ? 60 : 40,
+    padding: Spacing.base,
+    paddingTop: Platform.OS === 'ios' ? 60 : 36,
     flexGrow: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   backButton: {
-    marginBottom: Spacing.lg,
+    alignSelf: 'flex-start',
+    marginBottom: Spacing.md,
+    paddingHorizontal: 4,
   },
   backButtonText: {
-    color: Colors.textSecondary,
-    fontSize: Typography.base,
+    color: '#E8302A',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  cardBox: {
+    backgroundColor: '#FFFFFF',
+    borderRadius: 16,
+    padding: Spacing.xl,
+    width: '100%',
+    maxWidth: 460,
+    borderWidth: 1,
+    borderColor: '#E2E8F0',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    elevation: 4,
   },
   header: {
-    marginBottom: Spacing.xxl,
+    alignItems: 'center',
+    marginBottom: Spacing.xl,
+  },
+  flagBadge: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#FFF5F5',
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#FED7D7',
   },
   title: {
-    fontSize: Typography.xxxl,
+    color: '#0D1B2E',
+    fontSize: 20,
     fontWeight: '800',
-    color: Colors.textPrimary,
-    marginBottom: Spacing.xs,
+    marginBottom: 6,
+    textAlign: 'center',
   },
   subtitle: {
-    fontSize: Typography.sm,
-    color: Colors.textSecondary,
-    lineHeight: 20,
+    color: '#64748B',
+    fontSize: 13,
+    textAlign: 'center',
+    lineHeight: 18,
   },
   form: {
-    gap: Spacing.lg,
+    gap: Spacing.md,
   },
   inputGroup: {
-    gap: Spacing.xs,
+    gap: 6,
   },
   label: {
-    fontSize: Typography.sm,
-    fontWeight: '600',
-    color: Colors.textSecondary,
+    color: '#0D1B2E',
+    fontSize: 12,
+    fontWeight: '700',
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   input: {
-    backgroundColor: Colors.surface,
+    backgroundColor: '#F8FAFC',
+    borderRadius: 10,
     borderWidth: 1,
-    borderColor: Colors.glassBorder,
-    borderRadius: BorderRadius.md,
-    paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.md,
-    color: Colors.textPrimary,
-    fontSize: Typography.base,
+    borderColor: '#E2E8F0',
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    color: '#0D1B2E',
+    fontSize: 14,
   },
   submitButton: {
-    backgroundColor: Colors.primary,
-    borderRadius: BorderRadius.md,
-    paddingVertical: Spacing.md,
+    backgroundColor: '#E8302A',
+    borderRadius: 10,
+    paddingVertical: 14,
     alignItems: 'center',
-    marginTop: Spacing.md,
+    justifyContent: 'center',
+    marginTop: 8,
+    shadowColor: '#E8302A',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 4,
   },
   submitButtonText: {
     color: '#FFFFFF',
-    fontSize: Typography.base,
-    fontWeight: '700',
+    fontSize: 14,
+    fontWeight: '800',
+    letterSpacing: 0.5,
   },
   switchButton: {
     alignItems: 'center',
-    marginTop: Spacing.sm,
+    paddingVertical: Spacing.sm,
   },
   switchText: {
-    color: Colors.textSecondary,
-    fontSize: Typography.sm,
+    color: '#64748B',
+    fontSize: 13,
   },
   switchLink: {
-    color: Colors.primary,
-    fontWeight: '700',
+    color: '#E8302A',
+    fontWeight: '800',
   },
 });
