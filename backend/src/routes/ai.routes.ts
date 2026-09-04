@@ -5,12 +5,12 @@ import {
   chatStream,
   generateJournalStory,
 } from '../controllers/ai.controller';
-import { authenticate } from '../middlewares/auth';
+import { optionalAuthenticate } from '../middlewares/auth';
 import { aiRateLimiter } from '../middlewares/rateLimiter';
 
 const router = Router();
 
-router.use(authenticate);
+router.use(optionalAuthenticate);
 router.use(aiRateLimiter);
 
 router.post('/plan', generateTravelPlan);

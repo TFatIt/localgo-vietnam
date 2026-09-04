@@ -98,7 +98,7 @@ export default function AIPlannerScreen() {
         </TouchableOpacity>
         <View style={styles.headerCenter}>
           <Text style={styles.headerTitle}>🤖 AI Lên Kế Hoạch</Text>
-          <Text style={styles.headerSubtitle}>Được tạo bởi GPT-4o</Text>
+          <Text style={styles.headerSubtitle}>Powered by Google Gemini 🇻🇳</Text>
         </View>
         <View style={{ width: 40 }} />
       </LinearGradient>

@@ -10,6 +10,7 @@ export const connectDatabase = async (): Promise<void> => {
 
     if (!config.mongodb.uri || config.mongodb.uri.includes('<username>') || config.mongodb.uri.includes('<password>')) {
       logger.warn('⚠️ MongoDB URI contains placeholder. Database connection skipped for offline development.');
+      mongoose.set('bufferCommands', false);
       return;
     }
 
@@ -31,6 +32,7 @@ export const connectDatabase = async (): Promise<void> => {
       logger.error('MongoDB connection error:', err);
     });
   } catch (error) {
+    mongoose.set('bufferCommands', false);
     if (config.env === 'production') {
       logger.error('Failed to connect to MongoDB:', error);
       process.exit(1);

@@ -51,6 +51,11 @@ export const config = {
     apiKey: process.env.OPENAI_API_KEY || '',
   },
 
+  gemini: {
+    apiKey: process.env.GEMINI_API_KEY || process.env.GOOGLE_AI_KEY || '',
+    model: process.env.GEMINI_MODEL || 'gemini-1.5-flash',
+  },
+
   googleMaps: {
     apiKey: process.env.GOOGLE_MAPS_API_KEY || '',
   },

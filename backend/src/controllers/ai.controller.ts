@@ -34,7 +34,7 @@ export const generateTravelPlan = asyncHandler(async (req: AuthRequest, res: Res
   }
 
   const itinerary = await aiService.generateTravelPlan({
-    userId: req.user!._id,
+    userId: req.user?._id || 'guest_user',
     destination,
     currentLocation,
     numberOfDays,

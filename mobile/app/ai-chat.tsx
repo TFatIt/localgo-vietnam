@@ -38,7 +38,7 @@ export default function AIChatScreen() {
   const [messages, setMessages] = useState<Message[]>([
     {
       role: 'assistant',
-      content: 'Xin chào! Tôi là LocalGo AI, trợ lý du lịch Việt Nam của bạn 🇻🇳\n\nTôi có thể giúp bạn:\n• Lên kế hoạch chuyến đi\n• Tìm địa điểm đẹp\n• Gợi ý ẩm thực địa phương\n• Tư vấn lịch trình phù hợp\n\nHỏi tôi bất cứ điều gì về du lịch Việt Nam!',
+      content: 'Xin chào! Tôi là LocalGo AI, trợ lý du lịch Việt Nam thông minh được hỗ trợ bởi Google Gemini 🇻🇳\n\nTôi có thể giúp bạn:\n• Lên kế hoạch chuyến đi chi tiết\n• Tìm địa điểm du lịch & quán ăn ngon\n• Gợi ý trải nghiệm văn hóa bản địa\n• Tối ưu chi phí hành trình\n\nHãy hỏi tôi bất cứ điều gì về du lịch Việt Nam!',
       timestamp: new Date(),
     },
   ]);
@@ -125,7 +125,7 @@ export default function AIChatScreen() {
           </View>
           <View>
             <Text style={styles.headerTitle}>LocalGo AI</Text>
-            <Text style={styles.headerSubtitle}>Trợ lý du lịch thông minh</Text>
+            <Text style={styles.headerSubtitle}>Powered by Google Gemini 🇻🇳</Text>
           </View>
         </View>
         <TouchableOpacity
