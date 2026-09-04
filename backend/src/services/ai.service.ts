@@ -63,48 +63,77 @@ export class AIService {
   }
 
   /**
+   * Helper to execute request with Gemini model fallback (Gemini 3.8 -> Gemini 3.6 -> Gemini Flash Latest)
+   */
+  private async executeGeminiWithFallback<T>(
+    requestFn: (modelName: string) => Promise<T>,
+  ): Promise<T> {
+    const primaryModel = config.gemini.model || 'gemini-3.8-flash';
+    const modelsToTry = [
+      primaryModel,
+      'gemini-3.8-flash',
+      'gemini-3.6-flash',
+      'gemini-flash-latest',
+    ].filter((m, idx, self) => self.indexOf(m) === idx);
+
+    let lastError: unknown;
+    for (const model of modelsToTry) {
+      try {
+        return await requestFn(model);
+      } catch (err: any) {
+        lastError = err;
+        const status = err.response?.status;
+        logger.warn(
+          `Gemini model ${model} issue (${status || err.message}). Attempting candidate fallback...`,
+        );
+      }
+    }
+    throw lastError;
+  }
+
+  /**
    * Calls Google Gemini API
    */
   private async callGemini(prompt: string, isJson = false): Promise<string> {
     const apiKey = config.gemini.apiKey;
-    const model = config.gemini.model || 'gemini-1.5-flash';
-
     if (!apiKey) {
       throw new Error('GEMINI_API_KEY is not configured');
     }
 
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+    return this.executeGeminiWithFallback(async (model) => {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
-    const body: Record<string, unknown> = {
-      contents: [
-        {
-          role: 'user',
-          parts: [{ text: prompt }],
+      const body: Record<string, unknown> = {
+        contents: [
+          {
+            role: 'user',
+            parts: [{ text: prompt }],
+          },
+        ],
+        generationConfig: {
+          temperature: 0.7,
+          maxOutputTokens: 3000,
         },
-      ],
-      generationConfig: {
-        temperature: 0.7,
-        maxOutputTokens: 3000,
-      },
-    };
+      };
 
-    if (isJson) {
-      (body.generationConfig as Record<string, unknown>).responseMimeType = 'application/json';
-    }
+      if (isJson) {
+        (body.generationConfig as Record<string, unknown>).responseMimeType = 'application/json';
+      }
 
-    const response = await axios.post(url, body, {
-      headers: { 'Content-Type': 'application/json' },
-      timeout: 30000,
+      const response = await axios.post(url, body, {
+        headers: { 'Content-Type': 'application/json' },
+        timeout: 30000,
+      });
+
+      const candidates = response.data?.candidates;
+      const text = candidates?.[0]?.content?.parts?.[0]?.text;
+
+      if (!text) {
+        throw new Error('Gemini returned an empty response');
+      }
+
+      return text;
     });
-
-    const candidates = response.data?.candidates;
-    const text = candidates?.[0]?.content?.parts?.[0]?.text;
-
-    if (!text) {
-      throw new Error('Gemini returned an empty response');
-    }
-
-    return text;
   }
 
   /**
@@ -114,13 +143,9 @@ export class AIService {
     messages: Array<{ role: 'user' | 'assistant'; content: string }>,
   ): Promise<string> {
     const apiKey = config.gemini.apiKey;
-    const model = config.gemini.model || 'gemini-1.5-flash';
-
     if (!apiKey) {
       throw new Error('GEMINI_API_KEY is not configured');
     }
-
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
 
     const systemInstruction = {
       parts: [
@@ -138,30 +163,34 @@ Ngày hiện tại: ${new Date().toLocaleDateString('vi-VN')}`,
       parts: [{ text: m.content }],
     }));
 
-    const response = await axios.post(
-      url,
-      {
-        system_instruction: systemInstruction,
-        contents,
-        generationConfig: {
-          temperature: 0.8,
-          maxOutputTokens: 1500,
+    return this.executeGeminiWithFallback(async (model) => {
+      const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`;
+
+      const response = await axios.post(
+        url,
+        {
+          system_instruction: systemInstruction,
+          contents,
+          generationConfig: {
+            temperature: 0.8,
+            maxOutputTokens: 1500,
+          },
         },
-      },
-      {
-        headers: { 'Content-Type': 'application/json' },
-        timeout: 25000,
-      },
-    );
+        {
+          headers: { 'Content-Type': 'application/json' },
+          timeout: 25000,
+        },
+      );
 
-    const candidates = response.data?.candidates;
-    const text = candidates?.[0]?.content?.parts?.[0]?.text;
+      const candidates = response.data?.candidates;
+      const text = candidates?.[0]?.content?.parts?.[0]?.text;
 
-    if (!text) {
-      throw new Error('Gemini chat returned an empty response');
-    }
+      if (!text) {
+        throw new Error('Gemini returned an empty response');
+      }
 
-    return text;
+      return text;
+    });
   }
 
   /**
